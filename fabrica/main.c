@@ -72,14 +72,10 @@ static const char *s_fragment_shader_src =
 
 // Cube mesh data
 static GLfloat s_vertices[] = {
-    1.0f, 1.0f, 1.0f, 1.0, 1.0,
-    0.0f, 1.0f, 0.0f, 0.0, 0.0,
-    0.0f, 1.0f, 1.0f, 0.0, 1.0,
-    1.0f, 0.0f, 0.0f, 1.0, 1.0,
-    0.0f, 0.0f, 0.0f, 0.0, 1.0,
-    1.0f, 1.0f, 0.0f, 1.0, 0.0,
-    1.0f, 0.0f, 1.0f, 1.0, 0.0,
-    0.0f, 0.0f, 1.0f, 0.0, 0.0,
+    1.0f, 1.0f, 1.0f, 1.0, 1.0, 0.0f, 1.0f, 0.0f, 0.0, 0.0,
+    0.0f, 1.0f, 1.0f, 0.0, 1.0, 1.0f, 0.0f, 0.0f, 1.0, 1.0,
+    0.0f, 0.0f, 0.0f, 0.0, 1.0, 1.0f, 1.0f, 0.0f, 1.0, 0.0,
+    1.0f, 0.0f, 1.0f, 1.0, 0.0, 0.0f, 0.0f, 1.0f, 0.0, 0.0,
 };
 
 static GLuint s_indices[36] = {0, 1, 2, 1, 3, 4, 5, 6, 3, 7, 3, 6,
@@ -194,13 +190,12 @@ void handle_key_event(GLFWwindow *window, int key, int scancode, int action,
         camera_recalculate_vectors();
     }
 
-    if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        s_camera_pitch -= 0.1;
-        camera_recalculate_vectors();
-    } else if (key == GLFW_KEY_DOWN &&
+    if (key == GLFW_KEY_SPACE &&
+        (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        s_camera_pos.y += 0.1;
+    } else if (key == GLFW_KEY_LEFT_SHIFT &&
                (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        s_camera_pitch += 0.1;
-        camera_recalculate_vectors();
+        s_camera_pos.y -= 0.1;
     }
 }
 
@@ -327,7 +322,8 @@ Buffers create_buffers() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(s_vertices), s_vertices,
                  GL_STATIC_DRAW);
 
-    /*glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), NULL);*/
+    /*glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+     * NULL);*/
     /*glEnableVertexAttribArray(0);*/
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), NULL);
