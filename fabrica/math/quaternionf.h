@@ -8,22 +8,22 @@ typedef struct {
     float x;
     float y;
     float z;
-} fabricam_QuaternionF;
+} fabrica_QuaternionF;
 
-void fabricam_quaternionf_normalize(fabricam_QuaternionF *q);
+void fabrica_quaternionf_normalize(fabrica_QuaternionF *q);
 
-void fabricam_quaternionf_multiply(const fabricam_QuaternionF *a,
-                                   const fabricam_QuaternionF *b,
-                                   fabricam_QuaternionF *out_c);
+void fabrica_quaternionf_multiply(const fabrica_QuaternionF *a,
+                                   const fabrica_QuaternionF *b,
+                                   fabrica_QuaternionF *out_c);
 
-void fabricam_quaternionf_rotation(float a, const fabricam_Vec3F *direction,
-                                   fabricam_QuaternionF *out);
+void fabrica_quaternionf_rotation(float a, const fabrica_Vec3F *direction,
+                                   fabrica_QuaternionF *out);
 
-void fabricam_quaternionf_rotation_from_euler(float roll, float pitch,
+void fabrica_quaternionf_rotation_from_euler(float roll, float pitch,
                                               float yaw,
-                                              fabricam_QuaternionF *out);
+                                              fabrica_QuaternionF *out);
 
-void fabricam_quaternionf_rotate(fabricam_QuaternionF *q, float a,
-                                 const fabricam_Vec3F *direction);
+void fabrica_quaternionf_rotate(fabrica_QuaternionF *q, float a,
+                                 const fabrica_Vec3F *direction);
 
 #endif

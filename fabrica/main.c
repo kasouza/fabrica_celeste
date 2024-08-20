@@ -1,10 +1,7 @@
-#include "fabrica/math/quaternionf.h"
-#include "fabrica/math/vec3f.h"
-#include <KHR/khrplatform.h>
-#include <assert.h>
 #include <fabrica/math/mat4f.h>
-#include <math.h>
-#include <stdio.h>
+#include <fabrica/math/quaternionf.h>
+#include <fabrica/math/vec3f.h>
+#include <fabrica/world/chunk.h>
 
 #include <stb/stb_image.h>
 
@@ -13,6 +10,9 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include <assert.h>
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -24,7 +24,7 @@ static int s_window_height = 600;
 
 static int s_is_running = 1;
 
-static fabricam_Vec3F s_camera_pos = {0};
+static fabrica_Vec3F s_camera_pos = {0};
 
 static float s_camera_yaw = M_PI / 2;
 static float s_camera_pitch = 0.0f;
@@ -32,19 +32,19 @@ static float s_camera_pitch = 0.0f;
 static double s_cursor_pos_x;
 static double s_cursor_pos_y;
 
-static fabricam_Vec3F s_camera_right = {
+static fabrica_Vec3F s_camera_right = {
     1.0f,
     0.0f,
     0.0f,
 };
 
-static fabricam_Vec3F s_camera_up = {
+static fabrica_Vec3F s_camera_up = {
     0.0f,
     1.0f,
     0.0f,
 };
 
-static fabricam_Vec3F s_camera_front = {
+static fabrica_Vec3F s_camera_front = {
     0.0f,
     0.0f,
     1.0f,
@@ -121,20 +121,20 @@ void init_gl() {
 }
 
 void camera_recalculate_vectors() {
-    fabricam_Vec3F world_up = {0.0f, 1.0f, 0.0f};
-    fabricam_Vec3F front = {1.0f, 0.0f, 0.0f};
-    fabricam_vec3f_rotate(&front, s_camera_yaw, &world_up);
-    fabricam_vec3f_normalize(&front);
+    fabrica_Vec3F world_up = {0.0f, 1.0f, 0.0f};
+    fabrica_Vec3F front = {1.0f, 0.0f, 0.0f};
+    fabrica_vec3f_rotate(&front, s_camera_yaw, &world_up);
+    fabrica_vec3f_normalize(&front);
 
-    fabricam_Vec3F right;
-    fabricam_vec3f_cross_product(&world_up, &front, &right);
-    fabricam_vec3f_normalize(&right);
+    fabrica_Vec3F right;
+    fabrica_vec3f_cross_product(&world_up, &front, &right);
+    fabrica_vec3f_normalize(&right);
 
-    fabricam_vec3f_rotate(&front, s_camera_pitch, &right);
-    fabricam_vec3f_normalize(&front);
+    fabrica_vec3f_rotate(&front, s_camera_pitch, &right);
+    fabrica_vec3f_normalize(&front);
 
-    fabricam_Vec3F up;
-    fabricam_vec3f_cross_product(&front, &right, &up);
+    fabrica_Vec3F up;
+    fabrica_vec3f_cross_product(&front, &right, &up);
 
     s_camera_front = front;
     s_camera_up = up;
@@ -155,29 +155,29 @@ void handle_key_event(GLFWwindow *window, int key, int scancode, int action,
     }
 
     if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        fabricam_Vec3F velocity;
+        fabrica_Vec3F velocity;
 
-        fabricam_vec3f_scale(&s_camera_front, 0.1, &velocity);
-        fabricam_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
+        fabrica_vec3f_scale(&s_camera_front, 0.1, &velocity);
+        fabrica_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
     } else if (key == GLFW_KEY_S &&
                (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        fabricam_Vec3F velocity;
+        fabrica_Vec3F velocity;
 
-        fabricam_vec3f_scale(&s_camera_front, -0.1, &velocity);
-        fabricam_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
+        fabrica_vec3f_scale(&s_camera_front, -0.1, &velocity);
+        fabrica_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
     }
 
     if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        fabricam_Vec3F velocity;
+        fabrica_Vec3F velocity;
 
-        fabricam_vec3f_scale(&s_camera_right, 0.1, &velocity);
-        fabricam_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
+        fabrica_vec3f_scale(&s_camera_right, 0.1, &velocity);
+        fabrica_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
     } else if (key == GLFW_KEY_A &&
                (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        fabricam_Vec3F velocity;
+        fabrica_Vec3F velocity;
 
-        fabricam_vec3f_scale(&s_camera_right, -0.1, &velocity);
-        fabricam_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
+        fabrica_vec3f_scale(&s_camera_right, -0.1, &velocity);
+        fabrica_vec3f_add(&s_camera_pos, &velocity, &s_camera_pos);
     }
 
     if (key == GLFW_KEY_RIGHT &&
@@ -407,23 +407,23 @@ int main() {
     float translation_matrix[16];
     float rotation_matrix[16];
 
-    fabricam_Vec3F dir = {0, 1, 0};
-    fabricam_QuaternionF quat;
+    fabrica_Vec3F dir = {0, 1, 0};
+    fabrica_QuaternionF quat;
 
-    fabricam_mat4f_persperctive(TO_RADIAN(70.0f),
+    fabrica_mat4f_persperctive(TO_RADIAN(70.0f),
                                 (float)s_window_width / s_window_height, 0.5f,
                                 100.0f, projection_matrix);
 
-    fabricam_mat4f_translation(0, 0, 1, translation_matrix);
-    fabricam_mat4f_identity(rotation_matrix);
+    fabrica_mat4f_translation(0, 0, 1, translation_matrix);
+    fabrica_mat4f_identity(rotation_matrix);
 
     // Calculate camera angles
-    fabricam_Vec3F horizontal_target = {
+    fabrica_Vec3F horizontal_target = {
         .x = s_camera_front.x,
         .y = 0.0f,
         .z = s_camera_front.z,
     };
-    fabricam_vec3f_normalize(&horizontal_target);
+    fabrica_vec3f_normalize(&horizontal_target);
 
     float horizontal_angle = asinf(fabsf(horizontal_target.z));
     if (horizontal_target.z >= 0.0f) {
@@ -445,17 +445,28 @@ int main() {
 
     glfwGetCursorPos(s_window, &s_cursor_pos_x, &s_cursor_pos_y);
 
+    // Actually doing stuff
+    fabrica_Chunk chunk;
+
+    for (int x = 0; x < CHUNK_SIZE; ++x) {
+        for (int y = 0; y < CHUNK_SIZE; ++y) {
+            for (int z = 0; z < CHUNK_SIZE; ++z) {
+                int idx =
+            }
+        }
+    }
+
     while (s_is_running) {
-        fabricam_mat4f_view(&s_camera_pos, &s_camera_right, &s_camera_up,
+        fabrica_mat4f_view(&s_camera_pos, &s_camera_right, &s_camera_up,
                             &s_camera_front, view_matrix);
 
-        fabricam_quaternionf_rotate(&quat, 0.01, &dir);
-        fabricam_mat4f_rotation_from_quaternionf(&quat, rotation_matrix);
+        fabrica_quaternionf_rotate(&quat, 0.01, &dir);
+        fabrica_mat4f_rotation_from_quaternionf(&quat, rotation_matrix);
 
-        fabricam_mat4f_identity(rotation_matrix);
-        fabricam_mat4f_mult(translation_matrix, rotation_matrix, model_matrix);
-        fabricam_mat4f_mult(view_matrix, model_matrix, temp_matrix);
-        fabricam_mat4f_mult(projection_matrix, temp_matrix, final_matrix);
+        fabrica_mat4f_identity(rotation_matrix);
+        fabrica_mat4f_mult(translation_matrix, rotation_matrix, model_matrix);
+        fabrica_mat4f_mult(view_matrix, model_matrix, temp_matrix);
+        fabrica_mat4f_mult(projection_matrix, temp_matrix, final_matrix);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

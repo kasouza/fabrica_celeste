@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 
-void fabricam_mat4f_identity(float *mat) {
+void fabrica_mat4f_identity(float *mat) {
     mat[0] = 1;
     mat[1] = 0;
     mat[2] = 0;
@@ -25,7 +25,7 @@ void fabricam_mat4f_identity(float *mat) {
     mat[15] = 1;
 }
 
-void fabricam_mat4f_mult(float *a, float *b, float *out_c) {
+void fabrica_mat4f_mult(float *a, float *b, float *out_c) {
     out_c[0] = a[0] * b[0] + a[1] * b[4] + a[2] * b[8] + a[3] * b[12];
     out_c[1] = a[0] * b[1] + a[1] * b[5] + a[2] * b[9] + a[3] * b[13];
     out_c[2] = a[0] * b[2] + a[1] * b[6] + a[2] * b[10] + a[3] * b[14];
@@ -44,7 +44,7 @@ void fabricam_mat4f_mult(float *a, float *b, float *out_c) {
     out_c[15] = a[12] * b[3] + a[13] * b[7] + a[14] * b[11] + a[15] * b[15];
 }
 
-void fabricam_mat4f_scaling(float x, float y, float z, float *out_c) {
+void fabrica_mat4f_scaling(float x, float y, float z, float *out_c) {
     out_c[0] = x;
     out_c[1] = 0;
     out_c[2] = 0;
@@ -66,7 +66,7 @@ void fabricam_mat4f_scaling(float x, float y, float z, float *out_c) {
     out_c[15] = 1;
 }
 
-void fabricam_mat4f_translation(float x, float y, float z, float *out_c) {
+void fabrica_mat4f_translation(float x, float y, float z, float *out_c) {
     out_c[0] = 1;
     out_c[1] = 0;
     out_c[2] = 0;
@@ -88,7 +88,7 @@ void fabricam_mat4f_translation(float x, float y, float z, float *out_c) {
     out_c[15] = 1;
 }
 
-void fabricam_mat4f_rotation_from_quaternionf(fabricam_QuaternionF *quaternion,
+void fabrica_mat4f_rotation_from_quaternionf(fabrica_QuaternionF *quaternion,
                                               float *out) {
     float q0 = quaternion->w;
     float q1 = quaternion->x;
@@ -119,7 +119,7 @@ void fabricam_mat4f_rotation_from_quaternionf(fabricam_QuaternionF *quaternion,
     out[15] = 1;
 }
 
-void fabricam_mat4f_persperctive(float fov, float aspect, float near, float far,
+void fabrica_mat4f_persperctive(float fov, float aspect, float near, float far,
                                  float *out) {
     float tan_half_fov = tanf(fov / 2.0f);
     float f = 1.0f / tan_half_fov;
@@ -149,11 +149,11 @@ void fabricam_mat4f_persperctive(float fov, float aspect, float near, float far,
     out[15] = 0;
 }
 
-void fabricam_mat4f_view(const fabricam_Vec3F *pos, const fabricam_Vec3F *u,
-                         const fabricam_Vec3F *v, const fabricam_Vec3F *n,
+void fabrica_mat4f_view(const fabrica_Vec3F *pos, const fabrica_Vec3F *u,
+                         const fabrica_Vec3F *v, const fabrica_Vec3F *n,
                          float *out) {
     float translation[16];
-    fabricam_mat4f_translation(-pos->x, -pos->y, -pos->z, translation);
+    fabrica_mat4f_translation(-pos->x, -pos->y, -pos->z, translation);
 
     float rotation[16];
     rotation[0] = u->x;
@@ -176,5 +176,5 @@ void fabricam_mat4f_view(const fabricam_Vec3F *pos, const fabricam_Vec3F *u,
     rotation[14] = 0;
     rotation[15] = 1;
 
-    fabricam_mat4f_mult(rotation, translation, out);
+    fabrica_mat4f_mult(rotation, translation, out);
 }
