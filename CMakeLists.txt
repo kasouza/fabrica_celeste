@@ -11,10 +11,17 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(fabrica
+    fabrica/error.c
     fabrica/main.c
+
     fabrica/math/mat4f.c
     fabrica/math/quaternionf.c
     fabrica/math/vec3f.c
+
+    fabrica/renderer/chunk_mesh.c
+    fabrica/renderer/voxel_renderer.c
+
+    fabrica/world/chunk.c
 
     stb/stb_image.c
 )

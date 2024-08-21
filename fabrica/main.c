@@ -1,14 +1,13 @@
+#include "fabrica/memory/allocator.h"
+#include "fabrica/renderer/chunk_mesh.h"
+#include "fabrica/world/block.h"
 #include <fabrica/math/mat4f.h>
 #include <fabrica/math/quaternionf.h>
 #include <fabrica/math/vec3f.h>
+#include <fabrica/renderer/gl.h>
 #include <fabrica/world/chunk.h>
 
 #include <stb/stb_image.h>
-
-// clang-format off
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-// clang-format on
 
 #include <assert.h>
 #include <math.h>
@@ -50,24 +49,39 @@ static fabrica_Vec3F s_camera_front = {
     1.0f,
 };
 
+/*static const char *s_vertex_shader_src =*/
+/*"#version 330\n"*/
+/*"layout (location = 0) in vec3 a_pos;\n"*/
+/*"layout (location = 1) in vec2 a_tex_coords;\n"*/
+/*"uniform mat4 u_matrix;\n"*/
+/*"out vec2 tex_coords;\n"*/
+/*"void main() {\n"*/
+/*"    gl_Position = u_matrix * vec4(a_pos, 1.0);\n"*/
+/*"    tex_coords = a_tex_coords;\n"*/
+/*"}";*/
+
+/*static const char *s_fragment_shader_src =*/
+/*"#version 330\n"*/
+/*"in vec2 tex_coords;\n"*/
+/*"uniform sampler2D text;\n"*/
+/*"out vec4 frag_color;\n"*/
+/*"void main() {\n"*/
+/*"    frag_color = texture(text, tex_coords);\n"*/
+/*"}";*/
+
 static const char *s_vertex_shader_src =
     "#version 330\n"
     "layout (location = 0) in vec3 a_pos;\n"
-    "layout (location = 1) in vec2 a_tex_coords;\n"
     "uniform mat4 u_matrix;\n"
-    "out vec2 tex_coords;\n"
     "void main() {\n"
     "    gl_Position = u_matrix * vec4(a_pos, 1.0);\n"
-    "    tex_coords = a_tex_coords;\n"
     "}";
 
 static const char *s_fragment_shader_src =
     "#version 330\n"
-    "in vec2 tex_coords;\n"
-    "uniform sampler2D text;\n"
     "out vec4 frag_color;\n"
     "void main() {\n"
-    "    frag_color = texture(text, tex_coords);\n"
+    "    frag_color = vec4(1.0, 0.0, 0.0, 1.0);\n"
     "}";
 
 // Cube mesh data
@@ -91,12 +105,12 @@ void init_gl() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-    glfwGetMonitorWorkarea(monitor, NULL, NULL, &s_window_width,
-                           &s_window_height);
+    /*GLFWmonitor *monitor = glfwGetPrimaryMonitor();*/
+    /*glfwGetMonitorWorkarea(monitor, NULL, NULL, &s_window_width,*/
+    /*&s_window_height);*/
 
-    s_window = glfwCreateWindow(s_window_width, s_window_height, "Mine",
-                                monitor, NULL);
+    s_window =
+        glfwCreateWindow(s_window_width, s_window_height, "Mine", NULL, NULL);
     if (!s_window) {
         fprintf(stderr, "Failed to create window\n");
         glfwTerminate();
@@ -307,31 +321,33 @@ typedef struct {
     GLuint ebo;
 } Buffers;
 
-Buffers create_buffers() {
+Buffers create_buffers(fabrica_ChunkMeshVertex *s_vertices, int vertices_len) {
     GLuint vao, ebo, vbo;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(s_indices), s_indices,
-                 GL_STATIC_DRAW);
+    /*glGenBuffers(1, &ebo);*/
+    /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);*/
+    /*glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(s_indices), s_indices,*/
+    /*GL_STATIC_DRAW);*/
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(s_vertices), s_vertices,
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(fabrica_ChunkMeshVertex) * vertices_len, s_vertices,
                  GL_STATIC_DRAW);
 
-    /*glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(fabrica_ChunkMeshVertex), NULL);
+    glEnableVertexAttribArray(0);
+
+    /*glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
      * NULL);*/
     /*glEnableVertexAttribArray(0);*/
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), NULL);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
-                          (void *)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
+    /*glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),*/
+    /*(void *)(3 * sizeof(GLfloat)));*/
+    /*glEnableVertexAttribArray(1);*/
 
     Buffers buffers = {.vao = vao, .vbo = vbo, .ebo = ebo};
 
@@ -394,7 +410,6 @@ int main() {
     }
 
     GLuint u_matrix = glGetUniformLocation(shader_program, "u_matrix");
-    Buffers buffers = create_buffers();
 
     GLuint texture = load_texture("assets/container.jpg");
 
@@ -411,8 +426,8 @@ int main() {
     fabrica_QuaternionF quat;
 
     fabrica_mat4f_persperctive(TO_RADIAN(70.0f),
-                                (float)s_window_width / s_window_height, 0.5f,
-                                100.0f, projection_matrix);
+                               (float)s_window_width / s_window_height, 0.5f,
+                               100.0f, projection_matrix);
 
     fabrica_mat4f_translation(0, 0, 1, translation_matrix);
     fabrica_mat4f_identity(rotation_matrix);
@@ -447,18 +462,40 @@ int main() {
 
     // Actually doing stuff
     fabrica_Chunk chunk;
+    fabrica_chunk_init(&chunk);
 
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             for (int z = 0; z < CHUNK_SIZE; ++z) {
-                int idx =
+                int idx = fabrica_block_index(x, y, z);
+                chunk.blocks[idx].type = fabrica_BlockType_AIR;
+
+                if (y <= 4) {
+                    chunk.blocks[idx].type = fabrica_BlockType_STONE;
+                }
+
+                if (y >= 28) {
+                    chunk.blocks[idx].type = fabrica_BlockType_STONE;
+                }
+
+                if (x >= 12 && x <= 20 && z >= 12 && z <= 20 ) {
+                    chunk.blocks[idx].type = fabrica_BlockType_AIR;
+                }
             }
         }
     }
 
+    fabrica_Allocator allocator = {
+        .malloc = malloc, .free = free, .realloc = realloc};
+    fabrica_mesh_chunk(&chunk, &allocator);
+    printf("%d %d\n", chunk.mesh.vertices_cap, chunk.mesh.vertices_len);
+
+    Buffers buffers =
+        create_buffers(chunk.mesh.vertices, chunk.mesh.vertices_len);
+
     while (s_is_running) {
         fabrica_mat4f_view(&s_camera_pos, &s_camera_right, &s_camera_up,
-                            &s_camera_front, view_matrix);
+                           &s_camera_front, view_matrix);
 
         fabrica_quaternionf_rotate(&quat, 0.01, &dir);
         fabrica_mat4f_rotation_from_quaternionf(&quat, rotation_matrix);
@@ -471,12 +508,13 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glBindVertexArray(buffers.vao);
-        glActiveTexture(GL_TEXTURE0);
+        /*glActiveTexture(GL_TEXTURE0);*/
 
         glUseProgram(shader_program);
         glUniformMatrix4fv(u_matrix, 1, GL_TRUE, final_matrix);
 
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, chunk.mesh.vertices_len);
+        /*glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);*/
 
         glfwSwapBuffers(s_window);
         glfwPollEvents();

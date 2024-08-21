@@ -1,0 +1,6 @@
+#ifndef KASOUZA_FABRICA_CELESTE_FABRICA_DEBUG_H
+#define KASOUZA_FABRICA_CELESTE_FABRICA_DEBUG_H
+
+#include <assert.h>
+
+#endif
