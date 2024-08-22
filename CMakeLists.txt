@@ -14,12 +14,14 @@ add_executable(fabrica
     fabrica/error.c
     fabrica/main.c
 
+    fabrica/file_io/read_file.c
+
     fabrica/math/mat4f.c
     fabrica/math/quaternionf.c
     fabrica/math/vec3f.c
 
     fabrica/renderer/chunk_mesh.c
-    fabrica/renderer/voxel_renderer.c
+    fabrica/renderer/chunk_renderer.c
 
     fabrica/world/chunk.c
 

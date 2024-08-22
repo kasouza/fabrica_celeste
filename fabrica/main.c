@@ -1,11 +1,14 @@
+#include "fabrica/error.h"
+#include "fabrica/file_io/read_file.h"
+#include "fabrica/math/mat4f.h"
+#include "fabrica/math/quaternionf.h"
+#include "fabrica/math/vec3f.h"
 #include "fabrica/memory/allocator.h"
 #include "fabrica/renderer/chunk_mesh.h"
+#include "fabrica/renderer/chunk_renderer.h"
+#include "fabrica/renderer/gl.h"
 #include "fabrica/world/block.h"
-#include <fabrica/math/mat4f.h>
-#include <fabrica/math/quaternionf.h>
-#include <fabrica/math/vec3f.h>
-#include <fabrica/renderer/gl.h>
-#include <fabrica/world/chunk.h>
+#include "fabrica/world/chunk.h"
 
 #include <stb/stb_image.h>
 
@@ -13,6 +16,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define TO_RADIAN(x) (float)(((x)*M_PI / 180.0f))
@@ -401,6 +405,16 @@ void print_matrix(float *mat) {
 }
 
 int main() {
+    fabrica_Allocator allocator = {
+        .malloc = malloc, .free = free, .realloc = realloc};
+
+    fabrica_error_init(&allocator);
+
+    char *content = fabrica_read_file_string("assets/test.txt", &allocator);
+
+    fabrica_error_terminate();
+    return 0;
+
     init_gl();
     init_events();
 
@@ -478,15 +492,13 @@ int main() {
                     chunk.blocks[idx].type = fabrica_BlockType_STONE;
                 }
 
-                if (x >= 12 && x <= 20 && z >= 12 && z <= 20 ) {
+                if (x >= 12 && x <= 20 && z >= 12 && z <= 20) {
                     chunk.blocks[idx].type = fabrica_BlockType_AIR;
                 }
             }
         }
     }
 
-    fabrica_Allocator allocator = {
-        .malloc = malloc, .free = free, .realloc = realloc};
     fabrica_mesh_chunk(&chunk, &allocator);
     printf("%d %d\n", chunk.mesh.vertices_cap, chunk.mesh.vertices_len);
 
@@ -507,6 +519,8 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        render_chunk(&chunk);
+
         glBindVertexArray(buffers.vao);
         /*glActiveTexture(GL_TEXTURE0);*/
 
@@ -520,5 +534,6 @@ int main() {
         glfwPollEvents();
     }
 
+    fabrica_error_terminate();
     terminate();
 }
