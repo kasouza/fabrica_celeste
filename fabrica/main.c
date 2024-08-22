@@ -7,6 +7,7 @@
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/chunk_renderer.h"
 #include "fabrica/renderer/gl.h"
+#include "fabrica/renderer/shaders.h"
 #include "fabrica/world/block.h"
 #include "fabrica/world/chunk.h"
 
@@ -53,53 +54,6 @@ static fabrica_Vec3F s_camera_front = {
     1.0f,
 };
 
-/*static const char *s_vertex_shader_src =*/
-/*"#version 330\n"*/
-/*"layout (location = 0) in vec3 a_pos;\n"*/
-/*"layout (location = 1) in vec2 a_tex_coords;\n"*/
-/*"uniform mat4 u_matrix;\n"*/
-/*"out vec2 tex_coords;\n"*/
-/*"void main() {\n"*/
-/*"    gl_Position = u_matrix * vec4(a_pos, 1.0);\n"*/
-/*"    tex_coords = a_tex_coords;\n"*/
-/*"}";*/
-
-/*static const char *s_fragment_shader_src =*/
-/*"#version 330\n"*/
-/*"in vec2 tex_coords;\n"*/
-/*"uniform sampler2D text;\n"*/
-/*"out vec4 frag_color;\n"*/
-/*"void main() {\n"*/
-/*"    frag_color = texture(text, tex_coords);\n"*/
-/*"}";*/
-
-static const char *s_vertex_shader_src =
-    "#version 330\n"
-    "layout (location = 0) in vec3 a_pos;\n"
-    "uniform mat4 u_matrix;\n"
-    "void main() {\n"
-    "    gl_Position = u_matrix * vec4(a_pos, 1.0);\n"
-    "}";
-
-static const char *s_fragment_shader_src =
-    "#version 330\n"
-    "out vec4 frag_color;\n"
-    "void main() {\n"
-    "    frag_color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-    "}";
-
-// Cube mesh data
-static GLfloat s_vertices[] = {
-    1.0f, 1.0f, 1.0f, 1.0, 1.0, 0.0f, 1.0f, 0.0f, 0.0, 0.0,
-    0.0f, 1.0f, 1.0f, 0.0, 1.0, 1.0f, 0.0f, 0.0f, 1.0, 1.0,
-    0.0f, 0.0f, 0.0f, 0.0, 1.0, 1.0f, 1.0f, 0.0f, 1.0, 0.0,
-    1.0f, 0.0f, 1.0f, 1.0, 0.0, 0.0f, 0.0f, 1.0f, 0.0, 0.0,
-};
-
-static GLuint s_indices[36] = {0, 1, 2, 1, 3, 4, 5, 6, 3, 7, 3, 6,
-                               2, 4, 7, 0, 7, 6, 0, 5, 1, 1, 5, 3,
-                               5, 0, 6, 7, 4, 3, 2, 1, 4, 0, 2, 7};
-
 void init_gl() {
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
@@ -108,10 +62,6 @@ void init_gl() {
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-    /*GLFWmonitor *monitor = glfwGetPrimaryMonitor();*/
-    /*glfwGetMonitorWorkarea(monitor, NULL, NULL, &s_window_width,*/
-    /*&s_window_height);*/
 
     s_window =
         glfwCreateWindow(s_window_width, s_window_height, "Mine", NULL, NULL);
@@ -244,81 +194,6 @@ void init_events() {
     glfwSetCursorPosCallback(s_window, handle_cursor_pos_event);
 }
 
-GLuint create_shader_program() {
-    // Create vertex shader
-    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &s_vertex_shader_src, 0);
-    glCompileShader(vertex_shader);
-
-    GLint vertex_shader_compiled;
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &vertex_shader_compiled);
-    if (vertex_shader_compiled == 0) {
-        int maxLength = 255;
-        glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &maxLength);
-
-        /* The maxLength includes the NULL character */
-        char *vertexInfoLog = (char *)malloc(maxLength);
-
-        glGetShaderInfoLog(vertex_shader, maxLength, &maxLength, vertexInfoLog);
-
-        fprintf(stderr, "Error compiling vertex shader: \n%s\n", vertexInfoLog);
-        free(vertexInfoLog);
-
-        return 1;
-    }
-
-    // Create fragment shader
-    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &s_fragment_shader_src, 0);
-    glCompileShader(fragment_shader);
-
-    GLint fragment_shader_compiled;
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS,
-                  &fragment_shader_compiled);
-
-    if (fragment_shader_compiled == 0) {
-        int maxLength = 255;
-        glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &maxLength);
-
-        /* The maxLength includes the NULL character */
-        char *fragmentInfoLog = (char *)malloc(maxLength);
-
-        glGetShaderInfoLog(fragment_shader, maxLength, &maxLength,
-                           fragmentInfoLog);
-
-        fprintf(stderr, "Error compiling fragment shader: \n%s\n",
-                fragmentInfoLog);
-        free(fragmentInfoLog);
-
-        return 0;
-    }
-
-    // Create program
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
-
-    GLint program_linked;
-    glGetProgramiv(program, GL_LINK_STATUS, &program_linked);
-    if (program_linked == 0) {
-        /* The maxLength includes the NULL character */
-        char *info_log = (char *)malloc(512);
-
-        glGetProgramInfoLog(program, 512, NULL, info_log);
-
-        fprintf(stderr, "%s\n", info_log);
-        free(info_log);
-
-        return 0;
-    }
-
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-
-    return program;
-}
-
 typedef struct {
     GLuint vao;
     GLuint vbo;
@@ -330,11 +205,6 @@ Buffers create_buffers(fabrica_ChunkMeshVertex *s_vertices, int vertices_len) {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    /*glGenBuffers(1, &ebo);*/
-    /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);*/
-    /*glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(s_indices), s_indices,*/
-    /*GL_STATIC_DRAW);*/
-
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER,
@@ -344,14 +214,6 @@ Buffers create_buffers(fabrica_ChunkMeshVertex *s_vertices, int vertices_len) {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                           sizeof(fabrica_ChunkMeshVertex), NULL);
     glEnableVertexAttribArray(0);
-
-    /*glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
-     * NULL);*/
-    /*glEnableVertexAttribArray(0);*/
-
-    /*glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),*/
-    /*(void *)(3 * sizeof(GLfloat)));*/
-    /*glEnableVertexAttribArray(1);*/
 
     Buffers buffers = {.vao = vao, .vbo = vbo, .ebo = ebo};
 
@@ -405,27 +267,23 @@ void print_matrix(float *mat) {
 }
 
 int main() {
-    fabrica_Allocator allocator = {
+    fabrica_Allocator default_allocator = {
         .malloc = malloc, .free = free, .realloc = realloc};
 
-    fabrica_error_init(&allocator);
-
-    char *content = fabrica_read_file_string("assets/test.txt", &allocator);
-
-    fabrica_error_terminate();
-    return 0;
+    fabrica_error_init(&default_allocator);
 
     init_gl();
     init_events();
 
-    GLuint shader_program = create_shader_program();
-    if (!shader_program) {
+    if (!fabrica_shaders_init(&default_allocator)) {
+        fabrica_error_print_and_clear();
         return 1;
     }
 
-    GLuint u_matrix = glGetUniformLocation(shader_program, "u_matrix");
+    const fabrica_ShaderProgram *shader_program =
+        fabrica_shaders_get(fabrica_ShaderProgramType_CHUNK);
 
-    GLuint texture = load_texture("assets/container.jpg");
+    GLuint u_matrix = glGetUniformLocation(shader_program->program, "u_matrix");
 
     float temp_matrix[16];
     float model_matrix[16];
@@ -482,24 +340,12 @@ int main() {
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             for (int z = 0; z < CHUNK_SIZE; ++z) {
                 int idx = fabrica_block_index(x, y, z);
-                chunk.blocks[idx].type = fabrica_BlockType_AIR;
-
-                if (y <= 4) {
-                    chunk.blocks[idx].type = fabrica_BlockType_STONE;
-                }
-
-                if (y >= 28) {
-                    chunk.blocks[idx].type = fabrica_BlockType_STONE;
-                }
-
-                if (x >= 12 && x <= 20 && z >= 12 && z <= 20) {
-                    chunk.blocks[idx].type = fabrica_BlockType_AIR;
-                }
+                chunk.blocks[idx].type = fabrica_BlockType_STONE;
             }
         }
     }
 
-    fabrica_mesh_chunk(&chunk, &allocator);
+    fabrica_mesh_chunk(&chunk, &default_allocator);
     printf("%d %d\n", chunk.mesh.vertices_cap, chunk.mesh.vertices_len);
 
     Buffers buffers =
@@ -522,13 +368,11 @@ int main() {
         render_chunk(&chunk);
 
         glBindVertexArray(buffers.vao);
-        /*glActiveTexture(GL_TEXTURE0);*/
 
-        glUseProgram(shader_program);
+        glUseProgram(shader_program->program);
         glUniformMatrix4fv(u_matrix, 1, GL_TRUE, final_matrix);
 
         glDrawArrays(GL_TRIANGLES, 0, chunk.mesh.vertices_len);
-        /*glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);*/
 
         glfwSwapBuffers(s_window);
         glfwPollEvents();

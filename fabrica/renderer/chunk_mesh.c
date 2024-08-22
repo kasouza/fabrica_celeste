@@ -109,7 +109,7 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
         mesh->vertices = allocator->realloc(
             mesh->vertices, new_cap * sizeof(fabrica_ChunkMeshVertex));
         if (mesh->vertices == NULL) {
-            fabrica_exit(fabrica_Error_MEMORY_ALLOCATION_ERROR);
+            fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
         }
 
         mesh->vertices_cap = new_cap;

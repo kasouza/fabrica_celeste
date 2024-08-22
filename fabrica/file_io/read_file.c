@@ -7,23 +7,24 @@
 #include <errno.h>
 #include <stdio.h>
 
-char *fabrica_read_file_string(const char *filename, const fabrica_Allocator *allocator) {
+char *fabrica_read_file_string(const char *filename,
+                               const fabrica_Allocator *allocator) {
     assert(filename != NULL);
 
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno);
+        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
         return NULL;
     }
 
     if (fseek(file, 0, SEEK_END) == -1) {
-        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno);
+        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
         return NULL;
     }
 
     long length = ftell(file);
     if (length == -1) {
-        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno);
+        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
         return NULL;
     }
 
@@ -33,14 +34,14 @@ char *fabrica_read_file_string(const char *filename, const fabrica_Allocator *al
     }
 
     if (fseek(file, 0, SEEK_SET) == -1) {
-        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno);
+        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
         return NULL;
     }
 
     fread(content, 1, length, file);
 
     if (ferror(file) != 0) {
-        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno);
+        fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
 
         fclose(file);
         allocator->free(content);
