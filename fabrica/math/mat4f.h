@@ -5,7 +5,7 @@
 
 void fabrica_mat4f_identity(float *mat);
 
-void fabrica_mat4f_mult(float *a, float *b, float *out_c);
+void fabrica_mat4f_mult(const float *a, const float *b, float *out_c);
 
 void fabrica_mat4f_scaling(float x, float y, float z, float *out_c);
 void fabrica_mat4f_translation(float x, float y, float z, float *out_c);

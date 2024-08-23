@@ -37,6 +37,6 @@ void fabrica_camera_move(fabrica_Camera *camera, fabrica_CameraMoveDir dir,
  * @param camera The camera to calculate the view matrix from.
  * @param out_view_matrix The output view matrix. Must be a 16 float array.
  **/
-void fabrica_camera_view_matrix(fabrica_Camera *camera, float *out_view_matrix);
+void fabrica_camera_view_matrix(const fabrica_Camera *camera, float *out_view_matrix);
 
 #endif

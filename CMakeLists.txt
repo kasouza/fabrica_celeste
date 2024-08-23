@@ -23,7 +23,7 @@ add_executable(fabrica
 
     fabrica/renderer/camera.c
     fabrica/renderer/chunk_mesh.c
-    fabrica/renderer/chunk_renderer.c
+    fabrica/renderer/renderer.c
     fabrica/renderer/shaders.c
 
     fabrica/world/chunk.c

@@ -7,7 +7,8 @@ typedef enum {
     fabrica_ErrorCode_MEMORY_ALLOCATION = 1,
     fabrica_ErrorCode_READ_FILE = 2,
     fabrica_ErrorCode_RENDERER_SHADER_COMPILATION = 3,
-    fabrica_ErrorCode_RENDERER_SHADER_PROGRAM_LINKING = 4
+    fabrica_ErrorCode_RENDERER_SHADER_PROGRAM_LINKING = 4,
+    fabrica_ErrorCode_RENDERER_TEXTURE_LOAD = 5
 } fabrica_ErrorCode;
 
 typedef struct {

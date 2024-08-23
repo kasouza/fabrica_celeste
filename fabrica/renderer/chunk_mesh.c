@@ -1,4 +1,5 @@
 #include "fabrica/error.h"
+#include "fabrica/math/mat4f.h"
 #include "fabrica/memory/allocator.h"
 #include "fabrica/memory/malloc.h"
 #include "fabrica/world/block.h"
@@ -23,15 +24,21 @@ typedef struct {
 } Neighbors;
 
 void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
-                                   const fabrica_Allocator *allocator,
                                    const Neighbors *neighbors);
 
-void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh) {
+void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh,
+                             const fabrica_Allocator *allocator) {
     assert(chunk_mesh != NULL);
+    assert(allocator != NULL);
+    assert(allocator->free != NULL && allocator->malloc != NULL &&
+           allocator->realloc != NULL);
 
     chunk_mesh->vertices = NULL;
     chunk_mesh->vertices_cap = 0;
     chunk_mesh->vertices_len = 0;
+    fabrica_mat4f_identity(chunk_mesh->transformation_matrix);
+
+    chunk_mesh->allocator = allocator;
 }
 
 int isAir(const fabrica_Chunk *chunk, int x, int y, int z) {
@@ -47,19 +54,18 @@ int isAir(const fabrica_Chunk *chunk, int x, int y, int z) {
         return 1;
     }
 
-    int idx = fabrica_block_index(x, y, z);
+    int idx = fabrica_chunk_block_index(x, y, z);
     return chunk->blocks[idx].type == fabrica_BlockType_AIR;
 }
 
-void fabrica_mesh_chunk(fabrica_Chunk *chunk,
-                        const fabrica_Allocator *allocator) {
+void fabrica_chunk_mesh_build(fabrica_Chunk *chunk) {
     assert(chunk != NULL);
-    assert(allocator != NULL);
-    assert(allocator->free != NULL && allocator->malloc != NULL &&
-           allocator->realloc != NULL);
+
+    fabrica_mat4f_translation(chunk->pos.x, chunk->pos.y, chunk->pos.z,
+                              chunk->mesh.transformation_matrix);
 
     if (chunk->mesh.vertices == NULL) {
-        chunk->mesh.vertices = allocator->malloc(
+        chunk->mesh.vertices = chunk->mesh.allocator->malloc(
             sizeof(fabrica_ChunkMeshVertex) * VERTICES_INITIAL_CAPACITY);
         chunk->mesh.vertices_cap = VERTICES_INITIAL_CAPACITY;
         chunk->mesh.vertices_len = 0;
@@ -68,7 +74,7 @@ void fabrica_mesh_chunk(fabrica_Chunk *chunk,
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             for (int z = 0; z < CHUNK_SIZE; ++z) {
-                int idx = fabrica_block_index(x, y, z);
+                int idx = fabrica_chunk_block_index(x, y, z);
                 if (chunk->blocks[idx].type != fabrica_BlockType_AIR) {
                     Neighbors neighbors = {.down = isAir(chunk, x, y - 1, z),
                                            .up = isAir(chunk, x, y + 1, z),
@@ -78,7 +84,7 @@ void fabrica_mesh_chunk(fabrica_Chunk *chunk,
                                            .back = isAir(chunk, x, y, z + 1)};
 
                     fabrica_chunk_mesh_push_block(&chunk->mesh, x, y, z,
-                                                  allocator, &neighbors);
+                                                  &neighbors);
                 }
             }
         }
@@ -86,7 +92,6 @@ void fabrica_mesh_chunk(fabrica_Chunk *chunk,
 }
 
 void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
-                                   const fabrica_Allocator *allocator,
                                    const Neighbors *neighbors) {
     assert(mesh != NULL);
     assert(mesh->vertices != NULL);
@@ -106,7 +111,7 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             new_cap = required_cap * VERTICES_GROW_FACTOR;
         }
 
-        mesh->vertices = allocator->realloc(
+        mesh->vertices = mesh->allocator->realloc(
             mesh->vertices, new_cap * sizeof(fabrica_ChunkMeshVertex));
         if (mesh->vertices == NULL) {
             fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);

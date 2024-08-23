@@ -130,7 +130,7 @@ void fabrica_camera_move(fabrica_Camera *camera, fabrica_CameraMoveDir dir,
     fabrica_vec3f_add(&camera->pos, &dir_vec, &camera->pos);
 }
 
-void fabrica_camera_view_matrix(fabrica_Camera *camera,
+void fabrica_camera_view_matrix(const fabrica_Camera *camera,
                                 float *out_view_matrix) {
     fabrica_mat4f_view(&camera->pos, &camera->right, &camera->up,
                        &camera->front, out_view_matrix);
