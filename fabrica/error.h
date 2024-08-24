@@ -8,7 +8,11 @@ typedef enum {
     fabrica_ErrorCode_READ_FILE = 2,
     fabrica_ErrorCode_RENDERER_SHADER_COMPILATION = 3,
     fabrica_ErrorCode_RENDERER_SHADER_PROGRAM_LINKING = 4,
-    fabrica_ErrorCode_RENDERER_TEXTURE_LOAD = 5
+    fabrica_ErrorCode_RENDERER_TEXTURE_LOAD = 5,
+    fabrica_ErrorCode_RENDERER_TEXTURE_LOAD_FORMAT = 6,
+    fabrica_ErrorCode_IMAGE_LOAD = 7,
+    fabrica_ErrorCode_TEXTURE_ATLAS_IMAGE_SIZE = 8,
+    fabrica_ErrorCode_TEXTURE_ATLAS_CHANNELS = 9
 } fabrica_ErrorCode;
 
 typedef struct {

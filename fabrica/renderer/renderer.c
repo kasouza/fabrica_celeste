@@ -4,6 +4,7 @@
 #include "fabrica/memory/allocator.h"
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/shaders.h"
+#include "fabrica/renderer/texture.h"
 #include "fabrica/world/chunk.h"
 
 #include <GLFW/glfw3.h>
@@ -27,14 +28,13 @@ void fabrica_render_chunk(const fabrica_Chunk *chunk);
 void init_gl();
 void handle_window_resize_event(GLFWwindow *window, int width, int height);
 
-void fabrica_renderer_init(const fabrica_Allocator *allocator) {
+bool fabrica_renderer_init(const fabrica_Allocator *allocator) {
     assert(allocator != NULL);
 
     init_gl();
 
     if (!fabrica_shaders_init(allocator)) {
-        fabrica_error_print_and_clear();
-        exit(EXIT_FAILURE);
+        return false;
     }
 
     glGenVertexArrays(1, &s_vao);
@@ -48,6 +48,8 @@ void fabrica_renderer_init(const fabrica_Allocator *allocator) {
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
+
+    return true;
 }
 
 void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera) {
@@ -120,11 +122,11 @@ void init_gl() {
 
     glViewport(0, 0, s_window_width, s_window_height);
 
-    glEnable(GL_DEPTH_TEST);
+    /*glEnable(GL_DEPTH_TEST);*/
 
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CW);
-    glCullFace(GL_BACK);
+    /*glEnable(GL_CULL_FACE);*/
+    /*glFrontFace(GL_CW);*/
+    /*glCullFace(GL_BACK);*/
 
     glfwSetWindowSizeCallback(s_window, handle_window_resize_event);
 }

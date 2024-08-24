@@ -9,4 +9,7 @@ typedef struct {
     int chunks_len;
 } fabrica_World;
 
+void fabrica_world_init(fabrica_World *world, const fabrica_Allocator *allocator);
+void fabrica_world_destroy(fabrica_World *world);
+
 #endif

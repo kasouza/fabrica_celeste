@@ -41,7 +41,7 @@ void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh,
     chunk_mesh->allocator = allocator;
 }
 
-int isAir(const fabrica_Chunk *chunk, int x, int y, int z) {
+int isInvisible(const fabrica_Chunk *chunk, int x, int y, int z) {
     if (x < 0 || x >= CHUNK_SIZE) {
         return 1;
     }
@@ -55,7 +55,7 @@ int isAir(const fabrica_Chunk *chunk, int x, int y, int z) {
     }
 
     int idx = fabrica_chunk_block_index(x, y, z);
-    return chunk->blocks[idx].type == fabrica_BlockType_AIR;
+    return !fabrica_block_get_type_info(chunk->blocks[idx].type)->visible;
 }
 
 void fabrica_chunk_mesh_build(fabrica_Chunk *chunk) {
@@ -76,12 +76,13 @@ void fabrica_chunk_mesh_build(fabrica_Chunk *chunk) {
             for (int z = 0; z < CHUNK_SIZE; ++z) {
                 int idx = fabrica_chunk_block_index(x, y, z);
                 if (chunk->blocks[idx].type != fabrica_BlockType_AIR) {
-                    Neighbors neighbors = {.down = isAir(chunk, x, y - 1, z),
-                                           .up = isAir(chunk, x, y + 1, z),
-                                           .left = isAir(chunk, x - 1, y, z),
-                                           .right = isAir(chunk, x + 1, y, z),
-                                           .front = isAir(chunk, x, y, z - 1),
-                                           .back = isAir(chunk, x, y, z + 1)};
+                    Neighbors neighbors = {
+                        .down = isInvisible(chunk, x, y - 1, z),
+                        .up = isInvisible(chunk, x, y + 1, z),
+                        .left = isInvisible(chunk, x - 1, y, z),
+                        .right = isInvisible(chunk, x + 1, y, z),
+                        .front = isInvisible(chunk, x, y, z - 1),
+                        .back = isInvisible(chunk, x, y, z + 1)};
 
                     fabrica_chunk_mesh_push_block(&chunk->mesh, x, y, z,
                                                   &neighbors);

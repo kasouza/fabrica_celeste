@@ -4,8 +4,9 @@
 #include "fabrica/renderer/camera.h"
 #include "fabrica/world/world.h"
 #include <GLFW/glfw3.h>
+#include <stdbool.h>
 
-void fabrica_renderer_init(const fabrica_Allocator *allocator);
+bool fabrica_renderer_init(const fabrica_Allocator *allocator);
 void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera);
 
 GLFWwindow *fabrica_renderer_get_window();

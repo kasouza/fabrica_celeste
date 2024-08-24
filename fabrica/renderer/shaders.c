@@ -4,6 +4,7 @@
 #include "fabrica/memory/allocator.h"
 
 #include <fabrica/renderer/shaders.h>
+#include <stdio.h>
 
 static fabrica_ShaderProgram s_fabrica_shaders[fabrica_ShaderProgramType_COUNT];
 
@@ -21,6 +22,10 @@ fabrica_ShaderProgram *fabrica_shaders_get(fabrica_ShaderProgramType type) {
 int fabrica_shaders_init(const fabrica_Allocator *allocator) {
     s_fabrica_shaders[fabrica_ShaderProgramType_CHUNK].program =
         s_create_shader_program("shaders/chunk.vert", "shaders/chunk.frag",
+                                allocator);
+
+    s_fabrica_shaders[fabrica_ShaderProgramType_TEXTURED].program =
+        s_create_shader_program("shaders/textured.vert", "shaders/textured.frag",
                                 allocator);
 
     for (int i = 0; i < fabrica_ShaderProgramType_COUNT; ++i) {

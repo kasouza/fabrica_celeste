@@ -6,6 +6,7 @@
 
 typedef enum {
     fabrica_ShaderProgramType_CHUNK = 0,
+    fabrica_ShaderProgramType_TEXTURED,
 
     fabrica_ShaderProgramType_COUNT
 } fabrica_ShaderProgramType;
