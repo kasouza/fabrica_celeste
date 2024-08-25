@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 bool fabrica_renderer_init(const fabrica_Allocator *allocator);
-void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera);
+void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera, const fabrica_TextureAtlas *atlas);
 
 GLFWwindow *fabrica_renderer_get_window();
 

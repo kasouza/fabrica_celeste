@@ -17,8 +17,15 @@ void fabrica_chunk_init(fabrica_Chunk *chunk,
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             for (int z = 0; z < CHUNK_SIZE; ++z) {
                 int idx = fabrica_chunk_block_index(x, y, z);
-                if (x >= 7 && x <= 10 && z >= 7 && z <= 10) {
-                    chunk->blocks[idx].type = fabrica_BlockType_AIR;
+
+                chunk->blocks[idx].type = fabrica_BlockType_AIR;
+
+                if (y < 4) {
+                    chunk->blocks[idx].type = fabrica_BlockType_STONE;
+                }
+
+                if (y == 4) {
+                    chunk->blocks[idx].type = fabrica_BlockType_DIRT;
                 }
             }
         }

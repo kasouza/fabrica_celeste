@@ -24,7 +24,9 @@ typedef struct {
 } Neighbors;
 
 void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
-                                   const Neighbors *neighbors);
+                                   const Neighbors *neighbors,
+                                   const fabrica_Block *block,
+                                   const fabrica_TextureAtlas *atlas);
 
 void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh,
                              const fabrica_Allocator *allocator) {
@@ -58,7 +60,8 @@ int isInvisible(const fabrica_Chunk *chunk, int x, int y, int z) {
     return !fabrica_block_get_type_info(chunk->blocks[idx].type)->visible;
 }
 
-void fabrica_chunk_mesh_build(fabrica_Chunk *chunk) {
+void fabrica_chunk_mesh_build(fabrica_Chunk *chunk,
+                              const fabrica_TextureAtlas *atlas) {
     assert(chunk != NULL);
 
     fabrica_mat4f_translation(chunk->pos.x, chunk->pos.y, chunk->pos.z,
@@ -85,7 +88,8 @@ void fabrica_chunk_mesh_build(fabrica_Chunk *chunk) {
                         .back = isInvisible(chunk, x, y, z + 1)};
 
                     fabrica_chunk_mesh_push_block(&chunk->mesh, x, y, z,
-                                                  &neighbors);
+                                                  &neighbors,
+                                                  &chunk->blocks[idx], atlas);
                 }
             }
         }
@@ -93,7 +97,9 @@ void fabrica_chunk_mesh_build(fabrica_Chunk *chunk) {
 }
 
 void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
-                                   const Neighbors *neighbors) {
+                                   const Neighbors *neighbors,
+                                   const fabrica_Block *block,
+                                   const fabrica_TextureAtlas *atlas) {
     assert(mesh != NULL);
     assert(mesh->vertices != NULL);
 
@@ -121,45 +127,77 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
         mesh->vertices_cap = new_cap;
     }
 
+    const fabrica_AtlasIndices *indices =
+        &fabrica_block_get_type_info(block->type)->indices;
+
     int idx = mesh->vertices_len;
     mesh->vertices_len += vertices_count;
 
+    int size = atlas->size_indices;
+    int resolution = atlas->image_size_pixels;
+
+    int tex_x = (indices->first % size) * resolution;
+    int tex_y = (indices->first / size) * resolution;
+
+    int tex_x2 = tex_x + resolution;
+    int tex_y2 = tex_y + resolution;
+
+    float uv_x = (float)tex_x / atlas->size_pixels;
+    float uv_y = (float)tex_y / atlas->size_pixels;
+
+    float uv_x2 = (float)tex_x2 / atlas->size_pixels;
+    float uv_y2 = (float)tex_y2 / atlas->size_pixels;
+
+
+    printf("uv_x: %f, uv_y: %f, uv_x2: %f, uv_y2: %f\n", uv_x, uv_y, uv_x2, uv_y2);
     // Front face
     if (neighbors->front) {
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
     }
 
@@ -169,36 +207,48 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
     }
 
@@ -208,36 +258,48 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
     }
 
@@ -247,36 +309,48 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
     }
 
@@ -286,36 +360,48 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 0.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
     }
 
@@ -325,36 +411,48 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 0.0f,
+            .u = uv_x,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 0.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
             .x = x + 1.0f,
             .y = y + 1.0f,
             .z = z + 1.0f,
+            .u = uv_x2,
+            .v = uv_y2,
         };
     }
 }

@@ -1,6 +1,7 @@
 #ifndef KASOUZA_FABRICA_CELESTE_FABRICA_RENDERER_CHUNK_MESH_H
 #define KASOUZA_FABRICA_CELESTE_FABRICA_RENDERER_CHUNK_MESH_H
 
+#include "fabrica/renderer/texture_atlas.h"
 #include <fabrica/memory/allocator.h>
 #include <fabrica/memory/malloc.h>
 #include <fabrica/renderer/gl.h>
@@ -10,6 +11,9 @@ typedef struct {
     GLfloat x;
     GLfloat y;
     GLfloat z;
+
+    GLfloat u;
+    GLfloat v;
 } fabrica_ChunkMeshVertex;
 
 typedef struct {
@@ -23,6 +27,6 @@ typedef struct {
 
 void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh,
                              const fabrica_Allocator *allocator);
-void fabrica_chunk_mesh_build(fabrica_Chunk *chunk);
+void fabrica_chunk_mesh_build(fabrica_Chunk *chunk, const fabrica_TextureAtlas *atlas);
 
 #endif

@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #define TO_RADIAN(x) (float)(((x)*M_PI / 180.0f))
-#define NEAR 0.5f
+#define NEAR 1.0f
 #define FAR 100.0f
 
 static GLFWwindow *s_window = NULL;
@@ -47,12 +47,18 @@ bool fabrica_renderer_init(const fabrica_Allocator *allocator) {
                           sizeof(fabrica_ChunkMeshVertex), NULL);
     glEnableVertexAttribArray(0);
 
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+                          sizeof(fabrica_ChunkMeshVertex),
+                          (void *)(sizeof(float) * 3));
+    glEnableVertexAttribArray(1);
+
     glBindVertexArray(0);
 
     return true;
 }
 
-void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera) {
+void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera,
+                    const fabrica_TextureAtlas *atlas) {
     float view_matrix[16];
     float projection_matrix[16];
     float temp_matrix[16];
@@ -85,6 +91,13 @@ void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera) {
         GLuint u_matrix =
             glGetUniformLocation(chunk_shader_program->program, "u_matrix");
         glUniformMatrix4fv(u_matrix, 1, GL_TRUE, final_matrix);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, atlas->texture.id);
+
+        GLuint u_texture =
+            glGetUniformLocation(chunk_shader_program->program, "u_texture");
+        glUniform1i(u_texture, 0);
 
         glDrawArrays(GL_TRIANGLES, 0, mesh->vertices_len);
     }
@@ -122,11 +135,11 @@ void init_gl() {
 
     glViewport(0, 0, s_window_width, s_window_height);
 
-    /*glEnable(GL_DEPTH_TEST);*/
+    glEnable(GL_DEPTH_TEST);
 
-    /*glEnable(GL_CULL_FACE);*/
-    /*glFrontFace(GL_CW);*/
-    /*glCullFace(GL_BACK);*/
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
+    glCullFace(GL_BACK);
 
     glfwSetWindowSizeCallback(s_window, handle_window_resize_event);
 }
