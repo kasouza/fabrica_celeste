@@ -148,8 +148,6 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
     float uv_x2 = (float)tex_x2 / atlas->size_pixels;
     float uv_y2 = (float)tex_y2 / atlas->size_pixels;
 
-
-    printf("uv_x: %f, uv_y: %f, uv_x2: %f, uv_y2: %f\n", uv_x, uv_y, uv_x2, uv_y2);
     // Front face
     if (neighbors->front) {
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){

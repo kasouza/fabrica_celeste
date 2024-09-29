@@ -55,14 +55,6 @@ void fabrica_blocks_init(const fabrica_Allocator *allocator, fabrica_TextureAtla
     for (int i = 0; i < visible_blocks_len; i++) {
         visible_blocks[i]->indices = atlas->indices[i];
     }
-
-    for (int i = 0; i < fabrica_BlockType_COUNT; i++) {
-        if (s_fabrica_block_type_info[i].visible) {
-            printf("Block %d: first: %d, last: %d\n", i,
-                   s_fabrica_block_type_info[i].indices.first,
-                   s_fabrica_block_type_info[i].indices.last);
-        }
-    }
 }
 
 const fabrica_BlockTypeInfo *

@@ -104,6 +104,7 @@ int main() {
 
     fabrica_TextureAtlas atlas;
     fabrica_blocks_init(&default_allocator, &atlas);
+
     init_events(fabrica_renderer_get_window());
 
     fabrica_camera_init(&s_camera, (fabrica_Vec3F){0.0f, 0.0f, -1.0f},
@@ -117,14 +118,6 @@ int main() {
 
     fabrica_ShaderProgram *shader_program =
         fabrica_shaders_get(fabrica_ShaderProgramType_TEXTURED);
-
-    /*float vertices[] = {*/
-    /*// positions          // colors           // texture coords*/
-    /*0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, uv_x2, uv_y2, // top right*/
-    /*0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, uv_x2, uv_y,  // bottom right*/
-    /*-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, uv_x,  uv_y,  // bottom left*/
-    /*-0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, uv_x,  uv_y2  // top left*/
-    /*};*/
 
     while (s_is_running) {
         fabrica_render(&world, &s_camera, &atlas);

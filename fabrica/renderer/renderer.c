@@ -54,6 +54,12 @@ bool fabrica_renderer_init(const fabrica_Allocator *allocator) {
 
     glBindVertexArray(0);
 
+    glfwSetInputMode(s_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    if (glfwRawMouseMotionSupported()) {
+        glfwSetInputMode(s_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+
     return true;
 }
 
