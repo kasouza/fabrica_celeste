@@ -29,7 +29,6 @@ static inline int fabrica_chunk_block_index(int x, int y, int z) {
     return (x * CHUNK_SIZE * CHUNK_SIZE) + (y * CHUNK_SIZE) + z;
 }
 
-void fabrica_chunk_init(fabrica_Chunk *chunk,
-                        const fabrica_Allocator *allocator);
+void fabrica_chunk_init(fabrica_Chunk *chunk);
 
 #endif

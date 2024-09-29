@@ -54,12 +54,6 @@ bool fabrica_renderer_init(const fabrica_Allocator *allocator) {
 
     glBindVertexArray(0);
 
-    glfwSetInputMode(s_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    if (glfwRawMouseMotionSupported()) {
-        glfwSetInputMode(s_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
-
     return true;
 }
 
@@ -74,7 +68,6 @@ void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera,
     fabrica_mat4f_persperctive(TO_RADIAN(70.0f),
                                (float)s_window_width / s_window_height, 0.5f,
                                100.0f, projection_matrix);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     const fabrica_ShaderProgram *chunk_shader_program =
@@ -148,6 +141,12 @@ void init_gl() {
     glCullFace(GL_BACK);
 
     glfwSetWindowSizeCallback(s_window, handle_window_resize_event);
+
+    glfwSetInputMode(s_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    if (glfwRawMouseMotionSupported()) {
+        glfwSetInputMode(s_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
 }
 
 void handle_window_resize_event(GLFWwindow *window, int width, int height) {

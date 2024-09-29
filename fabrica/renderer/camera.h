@@ -9,6 +9,8 @@ typedef struct {
     fabrica_Vec3F up;
     fabrica_Vec3F right;
 
+    fabrica_Vec3F world_up;
+
     float yaw;
     float pitch;
 } fabrica_Camera;

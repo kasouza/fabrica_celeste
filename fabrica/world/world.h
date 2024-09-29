@@ -3,8 +3,10 @@
 
 #include "fabrica/world/chunk.h"
 
+#define WORLD_CHUNKS_LEN 10
+
 typedef struct {
-    fabrica_Chunk chunks[1];
+    fabrica_Chunk chunks[WORLD_CHUNKS_LEN];
     int chunks_len;
 } fabrica_World;
 

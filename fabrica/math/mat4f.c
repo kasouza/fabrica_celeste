@@ -123,7 +123,7 @@ void fabrica_mat4f_persperctive(float fov, float aspect, float near, float far,
                                  float *out) {
     float tan_half_fov = tanf(fov / 2.0f);
     float f = 1.0f / tan_half_fov;
-    float z_range = far - near;
+    float z_range = near - far;
     float A = (-far - near) / z_range;
     float B = (2.0f * far * near) / z_range;
 
@@ -145,7 +145,6 @@ void fabrica_mat4f_persperctive(float fov, float aspect, float near, float far,
     out[12] = 0;
     out[13] = 0;
     out[14] = 1;
-
     out[15] = 0;
 }
 

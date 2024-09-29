@@ -14,6 +14,7 @@
 #include "fabrica/renderer/texture_atlas.h"
 #include "fabrica/world/block.h"
 #include "fabrica/world/chunk.h"
+#include "fabrica/world/chunk_map.h"
 #include "fabrica/world/world.h"
 
 #include <GLFW/glfw3.h>
@@ -91,6 +92,8 @@ void init_events(GLFWwindow *window) {
     glfwSetCursorPosCallback(window, handle_cursor_pos_event);
 }
 
+void chunk_map();
+
 int main() {
     fabrica_Allocator default_allocator = {
         .malloc = malloc, .free = free, .realloc = realloc};
@@ -119,10 +122,43 @@ int main() {
     fabrica_ShaderProgram *shader_program =
         fabrica_shaders_get(fabrica_ShaderProgramType_TEXTURED);
 
+    chunk_map();
+
     while (s_is_running) {
         fabrica_render(&world, &s_camera, &atlas);
     }
 
     fabrica_error_terminate();
     glfwTerminate();
+}
+
+void chunk_map() {
+    fabrica_ChunkMap chunk_map;
+    fabrica_chunk_map_init(&chunk_map);
+
+    int sas = 10;
+    for (int x = -sas; x < sas; ++x) {
+        for (int z = -sas; z < sas; ++z) {
+            fabrica_Chunk *chunk = malloc(sizeof(fabrica_Chunk));
+            fabrica_chunk_init(chunk);
+
+            chunk->pos.x = x * CHUNK_SIZE;
+            chunk->pos.y = 0;
+            chunk->pos.z = z * CHUNK_SIZE;
+
+            fabrica_chunk_map_set(&chunk_map, x, 0, z, chunk);
+        }
+    }
+
+    fabrica_Chunk *all_chunks;
+    int all_chunks_len = 0;
+
+    fabrica_chunk_map_get_all(&chunk_map, &all_chunks, &all_chunks_len);
+
+    for (int i = 0; i < all_chunks_len; ++i) {
+        printf("Chunk %d: %f %f %f\n", i, all_chunks[i].pos.x,
+               all_chunks[i].pos.y, all_chunks[i].pos.z);
+    }
+
+    free(all_chunks);
 }

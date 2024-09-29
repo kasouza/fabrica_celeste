@@ -1,6 +1,5 @@
 #include "fabrica/error.h"
 #include "fabrica/math/mat4f.h"
-#include "fabrica/memory/allocator.h"
 #include "fabrica/memory/malloc.h"
 #include "fabrica/world/block.h"
 #include <assert.h>
@@ -28,19 +27,13 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
                                    const fabrica_Block *block,
                                    const fabrica_TextureAtlas *atlas);
 
-void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh,
-                             const fabrica_Allocator *allocator) {
+void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh) {
     assert(chunk_mesh != NULL);
-    assert(allocator != NULL);
-    assert(allocator->free != NULL && allocator->malloc != NULL &&
-           allocator->realloc != NULL);
 
     chunk_mesh->vertices = NULL;
     chunk_mesh->vertices_cap = 0;
     chunk_mesh->vertices_len = 0;
     fabrica_mat4f_identity(chunk_mesh->transformation_matrix);
-
-    chunk_mesh->allocator = allocator;
 }
 
 int isInvisible(const fabrica_Chunk *chunk, int x, int y, int z) {
@@ -68,7 +61,7 @@ void fabrica_chunk_mesh_build(fabrica_Chunk *chunk,
                               chunk->mesh.transformation_matrix);
 
     if (chunk->mesh.vertices == NULL) {
-        chunk->mesh.vertices = chunk->mesh.allocator->malloc(
+        chunk->mesh.vertices = malloc(
             sizeof(fabrica_ChunkMeshVertex) * VERTICES_INITIAL_CAPACITY);
         chunk->mesh.vertices_cap = VERTICES_INITIAL_CAPACITY;
         chunk->mesh.vertices_len = 0;
@@ -118,7 +111,7 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             new_cap = required_cap * VERTICES_GROW_FACTOR;
         }
 
-        mesh->vertices = mesh->allocator->realloc(
+        mesh->vertices = realloc(
             mesh->vertices, new_cap * sizeof(fabrica_ChunkMeshVertex));
         if (mesh->vertices == NULL) {
             fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
@@ -367,7 +360,7 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .y = y + 0.0f,
             .z = z + 0.0f,
             .u = uv_x2,
-            .v = uv_y,
+            .v = uv_y2,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
@@ -375,7 +368,7 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .y = y + 0.0f,
             .z = z + 1.0f,
             .u = uv_x2,
-            .v = uv_y2,
+            .v = uv_y,
         };
 
         mesh->vertices[idx++] = (fabrica_ChunkMeshVertex){
@@ -399,7 +392,7 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
             .y = y + 0.0f,
             .z = z + 0.0f,
             .u = uv_x2,
-            .v = uv_y,
+            .v = uv_y2,
         };
     }
 

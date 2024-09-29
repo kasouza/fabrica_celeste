@@ -27,6 +27,7 @@ void fabrica_camera_init(fabrica_Camera *camera, fabrica_Vec3F pos,
     camera->front = front;
     camera->up = up;
     camera->right = right;
+    camera->world_up = world_up;
 
     // Calculate camera angles
     fabrica_Vec3F horizontal_target = {
@@ -70,8 +71,9 @@ void fabrica_camera_rotate(fabrica_Camera *camera, float x_offset,
 }
 
 void fabrica_camera_recalculate_vectors(fabrica_Camera *camera) {
-    fabrica_Vec3F world_up = {0.0f, 1.0f, 0.0f};
+    fabrica_Vec3F world_up = camera->world_up;
     fabrica_Vec3F front = {1.0f, 0.0f, 0.0f};
+
     fabrica_vec3f_rotate(&front, camera->yaw, &world_up);
     fabrica_vec3f_normalize(&front);
 
@@ -116,12 +118,14 @@ void fabrica_camera_move(fabrica_Camera *camera, fabrica_CameraMoveDir dir,
         break;
 
     case fabrica_CameraMoveDir_UP:
-        dir_vec = camera->up;
+        dir_vec = camera->world_up;
         break;
 
     case fabrica_CameraMoveDir_DOWN:
-        dir_vec = camera->up;
+        dir_vec = camera->world_up;
         velocity = -velocity;
+        break;
+    default:
         break;
     }
 

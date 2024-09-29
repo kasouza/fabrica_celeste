@@ -28,6 +28,7 @@ add_executable(
   fabrica/renderer/texture_atlas.c
   fabrica/world/block.c
   fabrica/world/chunk.c
+  fabrica/world/chunk_map.c
   fabrica/world/world.c
   stb/stb_image.c)
 
