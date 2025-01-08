@@ -1,13 +1,12 @@
 #ifndef KASOUZA_FABRICA_CELESTE_FABRICA_WORLD_WORLD_H
 #define KASOUZA_FABRICA_CELESTE_FABRICA_WORLD_WORLD_H
 
-#include "fabrica/world/chunk.h"
+#include "fabrica/world/chunk_map.h"
 
-#define WORLD_CHUNKS_LEN 10
+#define WORLD_SIZE 3
 
 typedef struct {
-    fabrica_Chunk chunks[WORLD_CHUNKS_LEN];
-    int chunks_len;
+    fabrica_ChunkMap chunks;
 } fabrica_World;
 
 void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas,

@@ -35,6 +35,6 @@ void fabrica_chunk_map_remove(fabrica_ChunkMap *chunk_map, int x, int y, int z);
   * @param out_chunks The output array of chunks, will be allocated by the function, must be freed by the caller
   * @param out_len The output length of the array
   */
-void fabrica_chunk_map_get_all(fabrica_ChunkMap *chunk_map, fabrica_Chunk **out_chunks, int *out_len);
+void fabrica_chunk_map_get_all(const fabrica_ChunkMap *chunk_map, fabrica_Chunk **out_chunks, int *out_len);
 
 #endif

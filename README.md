@@ -16,7 +16,7 @@ cmake --build build
 
 ## Important notes
 ### Dependencies
-- This project users opengl 3.3, so make sure your machine supports it.
+- This project user opengl 3.3, so make sure your machine supports it.
 - This project uses vcpkg to manage dependencies, so make sure you have it installed.
 - This project uses cmake to build, so make sure you have it installed.
 - This project uses clang-format to format the code, so make sure you have it installed.

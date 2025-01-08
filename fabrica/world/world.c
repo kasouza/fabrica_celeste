@@ -1,26 +1,26 @@
 #include "fabrica/world/world.h"
+#include "fabrica/world/chunk_map.h"
+#include <stdlib.h>
 
 void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas,
                         const fabrica_Allocator *allocator) {
     assert(world != NULL);
 
-    world->chunks_len = WORLD_CHUNKS_LEN;
+    fabrica_chunk_map_init(&world->chunks);
 
-    int world_size = 3;
-    for (int i = 0; i < world->chunks_len; i++) {
-        fabrica_chunk_init(&world->chunks[i]);
+    for (int i = 0; i < (WORLD_SIZE * WORLD_SIZE * WORLD_SIZE); i++) {
+        fabrica_Chunk *chunk = malloc(sizeof(fabrica_Chunk));
+        fabrica_chunk_init(chunk);
 
-        int x = i % world_size;
-        int y = i / (world_size * world_size);
-        int z = (i / world_size) % world_size;
+        int x = i % WORLD_SIZE;
+        int y = i / (WORLD_SIZE * WORLD_SIZE);
+        int z = (i / WORLD_SIZE) % WORLD_SIZE;
 
         int x_pos = x * CHUNK_SIZE;
         int y_pos = y * CHUNK_SIZE;
         int z_pos = z * CHUNK_SIZE;
 
-        world->chunks[i].pos = (fabrica_Vec3F){x_pos, y_pos, z_pos};
-
-        fabrica_Chunk *chunk = &world->chunks[i];
+        chunk->pos = (fabrica_Vec3F){x_pos, y_pos, z_pos};
 
         for (int block_x = 0; block_x < CHUNK_SIZE; ++block_x) {
             for (int block_y = 0; block_y < CHUNK_SIZE; ++block_y) {
@@ -40,6 +40,12 @@ void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas,
             }
         }
 
-        fabrica_chunk_mesh_build(&world->chunks[i], atlas);
+        fabrica_chunk_mesh_build(chunk, atlas);
+        fabrica_chunk_map_set(&world->chunks, x, y, z, chunk);
     }
+}
+
+void fabrica_world_destroy(fabrica_World *world) {
+    assert(world != NULL);
+    fabrica_chunk_map_destroy(&world->chunks);
 }

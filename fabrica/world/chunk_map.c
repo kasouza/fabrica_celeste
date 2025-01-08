@@ -146,7 +146,7 @@ void fabrica_chunk_map_remove(fabrica_ChunkMap *chunk_map, int x, int y,
     }
 }
 
-void fabrica_chunk_map_get_all(fabrica_ChunkMap *chunk_map,
+void fabrica_chunk_map_get_all(const fabrica_ChunkMap *chunk_map,
                                fabrica_Chunk **chunks, int *len) {
     assert(chunk_map != NULL);
     assert(chunks != NULL);

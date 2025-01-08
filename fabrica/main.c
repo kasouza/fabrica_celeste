@@ -1,20 +1,11 @@
 #include "fabrica/error.h"
-#include "fabrica/file_io/image.h"
-#include "fabrica/file_io/read_file.h"
-#include "fabrica/math/mat4f.h"
-#include "fabrica/math/quaternionf.h"
 #include "fabrica/math/vec3f.h"
 #include "fabrica/memory/allocator.h"
 #include "fabrica/renderer/camera.h"
-#include "fabrica/renderer/chunk_mesh.h"
-#include "fabrica/renderer/gl.h"
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/renderer/shaders.h"
-#include "fabrica/renderer/texture.h"
 #include "fabrica/renderer/texture_atlas.h"
 #include "fabrica/world/block.h"
-#include "fabrica/world/chunk.h"
-#include "fabrica/world/chunk_map.h"
 #include "fabrica/world/world.h"
 
 #include <GLFW/glfw3.h>
@@ -22,11 +13,7 @@
 #include <stb/stb_image.h>
 
 #include <assert.h>
-#include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 static int s_is_running = 1;
 
@@ -69,7 +56,7 @@ void handle_key_event(GLFWwindow *window, int key, int scancode, int action,
             break;
         }
 
-        fabrica_camera_move(&s_camera, dir, 0.1);
+        fabrica_camera_move(&s_camera, dir, 1);
     }
 }
 
@@ -91,8 +78,6 @@ void init_events(GLFWwindow *window) {
     glfwSetWindowCloseCallback(window, handle_window_close_event);
     glfwSetCursorPosCallback(window, handle_cursor_pos_event);
 }
-
-void chunk_map();
 
 int main() {
     fabrica_Allocator default_allocator = {
@@ -122,43 +107,14 @@ int main() {
     fabrica_ShaderProgram *shader_program =
         fabrica_shaders_get(fabrica_ShaderProgramType_TEXTURED);
 
-    chunk_map();
-
     while (s_is_running) {
         fabrica_render(&world, &s_camera, &atlas);
     }
 
     fabrica_error_terminate();
     glfwTerminate();
-}
 
-void chunk_map() {
-    fabrica_ChunkMap chunk_map;
-    fabrica_chunk_map_init(&chunk_map);
+    fabrica_world_destroy(&world);
 
-    int sas = 10;
-    for (int x = -sas; x < sas; ++x) {
-        for (int z = -sas; z < sas; ++z) {
-            fabrica_Chunk *chunk = malloc(sizeof(fabrica_Chunk));
-            fabrica_chunk_init(chunk);
-
-            chunk->pos.x = x * CHUNK_SIZE;
-            chunk->pos.y = 0;
-            chunk->pos.z = z * CHUNK_SIZE;
-
-            fabrica_chunk_map_set(&chunk_map, x, 0, z, chunk);
-        }
-    }
-
-    fabrica_Chunk *all_chunks;
-    int all_chunks_len = 0;
-
-    fabrica_chunk_map_get_all(&chunk_map, &all_chunks, &all_chunks_len);
-
-    for (int i = 0; i < all_chunks_len; ++i) {
-        printf("Chunk %d: %f %f %f\n", i, all_chunks[i].pos.x,
-               all_chunks[i].pos.y, all_chunks[i].pos.z);
-    }
-
-    free(all_chunks);
+    return 0;
 }

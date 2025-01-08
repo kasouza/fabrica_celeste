@@ -1,5 +1,4 @@
 #include "fabrica/renderer/renderer.h"
-#include "fabrica/error.h"
 #include "fabrica/math/mat4f.h"
 #include "fabrica/memory/allocator.h"
 #include "fabrica/renderer/chunk_mesh.h"
@@ -12,6 +11,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define TO_RADIAN(x) (float)(((x)*M_PI / 180.0f))
 #define NEAR 1.0f
@@ -59,6 +59,8 @@ bool fabrica_renderer_init(const fabrica_Allocator *allocator) {
 
 void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera,
                     const fabrica_TextureAtlas *atlas) {
+    assert(world != NULL);
+
     float view_matrix[16];
     float projection_matrix[16];
     float temp_matrix[16];
@@ -73,8 +75,15 @@ void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera,
     const fabrica_ShaderProgram *chunk_shader_program =
         fabrica_shaders_get(fabrica_ShaderProgramType_CHUNK);
 
-    for (int i = 0; i < world->chunks_len; ++i) {
-        const fabrica_ChunkMesh *mesh = &world->chunks[i].mesh;
+    fabrica_Chunk *all_chunks;
+    int all_chunks_len = 0;
+
+    fabrica_chunk_map_get_all(&world->chunks, &all_chunks, &all_chunks_len);
+
+
+    for (int i = 0; i < all_chunks_len; ++i) {
+        const fabrica_ChunkMesh *mesh = &all_chunks[i].mesh;
+        assert(mesh != NULL);
 
         fabrica_mat4f_mult(view_matrix, mesh->transformation_matrix,
                            temp_matrix);

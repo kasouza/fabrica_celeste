@@ -1,6 +1,5 @@
 #include "fabrica/error.h"
 #include "fabrica/math/mat4f.h"
-#include "fabrica/memory/malloc.h"
 #include "fabrica/world/block.h"
 #include <assert.h>
 #include <fabrica/renderer/chunk_mesh.h>
