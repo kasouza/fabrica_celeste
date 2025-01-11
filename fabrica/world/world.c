@@ -2,8 +2,7 @@
 #include "fabrica/world/chunk_map.h"
 #include <stdlib.h>
 
-void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas,
-                        const fabrica_Allocator *allocator) {
+void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas) {
     assert(world != NULL);
 
     fabrica_chunk_map_init(&world->chunks);

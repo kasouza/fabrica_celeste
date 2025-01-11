@@ -1,6 +1,5 @@
 #include "fabrica/error.h"
 #include "fabrica/math/vec3f.h"
-#include "fabrica/memory/allocator.h"
 #include "fabrica/renderer/camera.h"
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/renderer/shaders.h"
@@ -80,18 +79,15 @@ void init_events(GLFWwindow *window) {
 }
 
 int main() {
-    fabrica_Allocator default_allocator = {
-        .malloc = malloc, .free = free, .realloc = realloc};
+    fabrica_error_init();
 
-    fabrica_error_init(&default_allocator);
-
-    if (!fabrica_renderer_init(&default_allocator)) {
+    if (!fabrica_renderer_init()) {
         fabrica_error_print_and_clear();
         return 1;
     }
 
     fabrica_TextureAtlas atlas;
-    fabrica_blocks_init(&default_allocator, &atlas);
+    fabrica_blocks_init(&atlas);
 
     init_events(fabrica_renderer_get_window());
 
@@ -102,7 +98,7 @@ int main() {
                      &s_cursor_pos_y);
 
     fabrica_World world;
-    fabrica_world_init(&world, &atlas, &default_allocator);
+    fabrica_world_init(&world, &atlas);
 
     fabrica_ShaderProgram *shader_program =
         fabrica_shaders_get(fabrica_ShaderProgramType_TEXTURED);

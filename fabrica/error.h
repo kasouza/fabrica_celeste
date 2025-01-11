@@ -1,7 +1,6 @@
 #ifndef KASOUZA_FABRICA_CELESTE_FABRICA_ERROR_H
 #define KASOUZA_FABRICA_CELESTE_FABRICA_ERROR_H
 
-#include "fabrica/memory/allocator.h"
 typedef enum {
     fabrica_ErrorCode_OK = 0,
     fabrica_ErrorCode_MEMORY_ALLOCATION = 1,
@@ -17,11 +16,11 @@ typedef enum {
 
 typedef struct {
     fabrica_ErrorCode code;
-    int errno;
+    int _errno;
     char *message;
 } fabrica_Error;
 
-void fabrica_error_init(const fabrica_Allocator *allocator);
+void fabrica_error_init();
 void fabrica_error_terminate();
 
 void fabrica_error_push(fabrica_ErrorCode code);

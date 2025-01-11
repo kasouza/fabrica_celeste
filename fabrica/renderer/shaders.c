@@ -1,16 +1,15 @@
 #include "fabrica/debug.h"
 #include "fabrica/error.h"
 #include "fabrica/file_io/read_file.h"
-#include "fabrica/memory/allocator.h"
 
 #include <fabrica/renderer/shaders.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static fabrica_ShaderProgram s_fabrica_shaders[fabrica_ShaderProgramType_COUNT];
 
 static GLuint s_create_shader_program(const char *vertex_shader_path,
-                                      const char *fragment_shader_path,
-                                      const fabrica_Allocator *allocator);
+                                      const char *fragment_shader_path);
 
 fabrica_ShaderProgram *fabrica_shaders_get(fabrica_ShaderProgramType type) {
     assert(type >= 0);
@@ -19,14 +18,13 @@ fabrica_ShaderProgram *fabrica_shaders_get(fabrica_ShaderProgramType type) {
     return &s_fabrica_shaders[type];
 }
 
-int fabrica_shaders_init(const fabrica_Allocator *allocator) {
+int fabrica_shaders_init() {
     s_fabrica_shaders[fabrica_ShaderProgramType_CHUNK].program =
-        s_create_shader_program("shaders/chunk.vert", "shaders/chunk.frag",
-                                allocator);
+        s_create_shader_program("shaders/chunk.vert", "shaders/chunk.frag");
 
     s_fabrica_shaders[fabrica_ShaderProgramType_TEXTURED].program =
-        s_create_shader_program("shaders/textured.vert", "shaders/textured.frag",
-                                allocator);
+        s_create_shader_program("shaders/textured.vert",
+                                "shaders/textured.frag");
 
     for (int i = 0; i < fabrica_ShaderProgramType_COUNT; ++i) {
         if (!s_fabrica_shaders[i].program) {
@@ -44,16 +42,15 @@ void fabrica_shaders_terminate() {
 }
 
 static GLuint s_create_shader_program(const char *vertex_shader_path,
-                                      const char *fragment_shader_path,
-                                      const fabrica_Allocator *allocator) {
+                                      const char *fragment_shader_path) {
     GLchar *vertex_shader_src =
-        fabrica_read_file_string(vertex_shader_path, allocator);
+        fabrica_read_file_string(vertex_shader_path);
     if (!vertex_shader_src) {
         return 0;
     }
 
     GLchar *fragment_shader_src =
-        fabrica_read_file_string(fragment_shader_path, allocator);
+        fabrica_read_file_string(fragment_shader_path);
     if (!fragment_shader_src) {
         return 0;
     }
@@ -71,12 +68,12 @@ static GLuint s_create_shader_program(const char *vertex_shader_path,
         int maxLength = 255;
         glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &maxLength);
 
-        char *vertexInfoLog = allocator->malloc(maxLength);
+        char *vertexInfoLog = malloc(maxLength);
         glGetShaderInfoLog(vertex_shader, maxLength, &maxLength, vertexInfoLog);
 
         fabrica_error_push_message(
             fabrica_ErrorCode_RENDERER_SHADER_COMPILATION, vertexInfoLog);
-        allocator->free(vertexInfoLog);
+        free(vertexInfoLog);
 
         return 0;
     }
@@ -95,13 +92,13 @@ static GLuint s_create_shader_program(const char *vertex_shader_path,
         int maxLength = 255;
         glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &maxLength);
 
-        char *fragmentInfoLog = allocator->malloc(maxLength);
+        char *fragmentInfoLog = malloc(maxLength);
         glGetShaderInfoLog(fragment_shader, maxLength, &maxLength,
                            fragmentInfoLog);
 
         fabrica_error_push_message(
             fabrica_ErrorCode_RENDERER_SHADER_COMPILATION, fragmentInfoLog);
-        allocator->free(fragmentInfoLog);
+        free(fragmentInfoLog);
 
         return 0;
     }
@@ -115,13 +112,13 @@ static GLuint s_create_shader_program(const char *vertex_shader_path,
     GLint program_linked;
     glGetProgramiv(program, GL_LINK_STATUS, &program_linked);
     if (program_linked == 0) {
-        char *info_log = allocator->malloc(512);
+        char *info_log = malloc(512);
 
         glGetProgramInfoLog(program, 512, NULL, info_log);
 
         fabrica_error_push_message(
             fabrica_ErrorCode_RENDERER_SHADER_PROGRAM_LINKING, info_log);
-        allocator->free(info_log);
+        free(info_log);
 
         return 0;
     }

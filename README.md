@@ -32,5 +32,3 @@ cmake --build build
     - Ex: `fabrica_world_init` will initialize a `fabrica_World` object passed as an argument. If later the `fabrica_world_destroy` function is called, the memory used internally by the object will be freed, but the object itself will not be destroyed. This allows the caller to free the memory in the stack or heap.
     - If there happens to be an exception to this rule, the function that frees the memory will be named `*_free` and will take a pointer to the object as an argument, freeing the memory used by the object and the *object itself*.
         - Ex: `fabrica_world_free` will free all memory used by the `fabrica_World` object and the object itself: `fabrica_World world; fabrica_world_init(&world); fabrica_world_free(&world); // world is now invalid`
-
-- When memory needs to be allocated to be used internally by the object, the function will take an `fabrica_Allocator` object as an argument. This object will be used to allocate and free memory.

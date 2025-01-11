@@ -1,7 +1,6 @@
 #include "fabrica/world/block.h"
 #include "fabrica/debug.h"
 #include "fabrica/file_io/image.h"
-#include "fabrica/memory/allocator.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -24,7 +23,7 @@ static fabrica_BlockTypeInfo
             .texture = "assets/dirt.png",
         }};
 
-void fabrica_blocks_init(const fabrica_Allocator *allocator, fabrica_TextureAtlas *atlas) {
+void fabrica_blocks_init(fabrica_TextureAtlas *out_atlas) {
     fabrica_BlockTypeInfo *visible_blocks[fabrica_BlockType_COUNT];
     int visible_blocks_len = 0;
 
@@ -44,8 +43,8 @@ void fabrica_blocks_init(const fabrica_Allocator *allocator, fabrica_TextureAtla
         fabrica_image_load(&images[i], visible_blocks[i]->texture);
     }
 
-    fabrica_ErrorCode error = fabrica_texture_atlas_init(atlas, 16, 4, images,
-                                                         images_len, allocator);
+    fabrica_ErrorCode error = fabrica_texture_atlas_init(out_atlas, 16, 4, images,
+                                                         images_len);
 
     if (error != fabrica_ErrorCode_OK) {
         fabrica_error_print_and_clear();
@@ -53,7 +52,7 @@ void fabrica_blocks_init(const fabrica_Allocator *allocator, fabrica_TextureAtla
     }
 
     for (int i = 0; i < visible_blocks_len; i++) {
-        visible_blocks[i]->indices = atlas->indices[i];
+        visible_blocks[i]->indices = out_atlas->indices[i];
     }
 }
 

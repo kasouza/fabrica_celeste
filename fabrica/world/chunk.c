@@ -1,5 +1,3 @@
-#include "fabrica/memory/allocator.h"
-#include "fabrica/memory/malloc.h"
 #include <fabrica/debug.h>
 #include <fabrica/renderer/chunk_mesh.h>
 #include <fabrica/world/block.h>

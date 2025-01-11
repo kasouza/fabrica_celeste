@@ -9,8 +9,7 @@ typedef struct {
     fabrica_ChunkMap chunks;
 } fabrica_World;
 
-void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas,
-                        const fabrica_Allocator *allocator);
+void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas);
 void fabrica_world_destroy(fabrica_World *world);
 
 #endif

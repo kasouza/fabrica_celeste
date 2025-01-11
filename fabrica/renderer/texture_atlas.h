@@ -3,7 +3,6 @@
 
 #include "fabrica/error.h"
 #include "fabrica/file_io/image.h"
-#include "fabrica/memory/allocator.h"
 #include "fabrica/renderer/texture.h"
 
 typedef struct {
@@ -31,8 +30,6 @@ typedef struct {
      */
     fabrica_AtlasIndices *indices;
     int indices_len;
-
-    const fabrica_Allocator *allocator;
 } fabrica_TextureAtlas;
 
 /**
@@ -60,7 +57,7 @@ typedef struct {
 fabrica_ErrorCode
 fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
                            int channels, const fabrica_Image *images,
-                           int images_len, const fabrica_Allocator *allocator);
+                           int images_len);
 void fabrica_texture_atlas_destroy(fabrica_TextureAtlas *atlas);
 
 fabrica_ErrorCode fabrica_texture_atlas_load_image(fabrica_TextureAtlas *atlas,

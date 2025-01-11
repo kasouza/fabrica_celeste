@@ -1,12 +1,9 @@
-#include "fabrica/error.h"
 #include "fabrica/debug.h"
-#include "fabrica/memory/allocator.h"
+#include "fabrica/error.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-static const fabrica_Allocator *s_allocator;
 
 static fabrica_Error *s_errors;
 static int s_errors_len;
@@ -16,12 +13,10 @@ static const fabrica_Error **s_error_stack;
 static int s_error_stack_len;
 static int s_error_stack_cap;
 
-void fabrica_error_init(const fabrica_Allocator *allocator) {
-    s_allocator = allocator;
-
+void fabrica_error_init() {
     s_errors_cap = 32;
     s_errors_len = 0;
-    s_errors = s_allocator->malloc(sizeof(fabrica_Error) * s_errors_cap);
+    s_errors = malloc(sizeof(fabrica_Error) * s_errors_cap);
 
     if (!s_errors) {
         fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
@@ -29,8 +24,7 @@ void fabrica_error_init(const fabrica_Allocator *allocator) {
 
     s_error_stack_cap = 32;
     s_error_stack_len = 0;
-    s_error_stack =
-        s_allocator->malloc(sizeof(fabrica_Error *) * s_error_stack_cap);
+    s_error_stack = malloc(sizeof(fabrica_Error *) * s_error_stack_cap);
 
     if (!s_error_stack) {
         fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
@@ -65,8 +59,7 @@ void fabrica_error_push_errno(fabrica_ErrorCode code, int errno,
     // Grow arrays
     if (s_errors_len >= s_errors_cap) {
         int new_cap = s_errors_cap * 2;
-        s_errors =
-            s_allocator->realloc(s_errors, new_cap * sizeof(fabrica_Error));
+        s_errors = realloc(s_errors, new_cap * sizeof(fabrica_Error));
         if (!s_errors) {
             fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
         }
@@ -76,8 +69,8 @@ void fabrica_error_push_errno(fabrica_ErrorCode code, int errno,
 
     if (s_error_stack_len >= s_error_stack_cap) {
         int new_cap = s_error_stack_cap * 2;
-        s_error_stack = s_allocator->realloc(s_error_stack,
-                                             new_cap * sizeof(fabrica_Error *));
+        s_error_stack =
+            realloc(s_error_stack, new_cap * sizeof(fabrica_Error *));
         if (!s_error_stack) {
             fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
         }
@@ -90,13 +83,13 @@ void fabrica_error_push_errno(fabrica_ErrorCode code, int errno,
     s_errors_len++;
 
     s_errors[idx].code = code;
-    s_errors[idx].errno = errno;
+    s_errors[idx]._errno = errno;
     s_errors[idx].message = NULL;
 
     if (message) {
         int size = strlen(message) + 1;
 
-        s_errors[idx].message = s_allocator->malloc(size * sizeof(char));
+        s_errors[idx].message = malloc(size * sizeof(char));
         if (!s_errors[idx].message) {
             fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
         }
@@ -131,9 +124,9 @@ void fabrica_error_print_and_clear() {
 
         fprintf(stderr, "Error: %d - %s\n", error->code, message);
 
-        if (error->errno) {
-            fprintf(stderr, "Errno: %d - %s\n", error->errno,
-                    strerror(error->errno));
+        if (error->_errno) {
+            fprintf(stderr, "Errno: %d - %s\n", error->_errno,
+                    strerror(error->_errno));
         }
 
         fprintf(stderr, "\n");

@@ -1,6 +1,5 @@
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/math/mat4f.h"
-#include "fabrica/memory/allocator.h"
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/shaders.h"
 #include "fabrica/renderer/texture.h"
@@ -28,12 +27,10 @@ void fabrica_render_chunk(const fabrica_Chunk *chunk);
 void init_gl();
 void handle_window_resize_event(GLFWwindow *window, int width, int height);
 
-bool fabrica_renderer_init(const fabrica_Allocator *allocator) {
-    assert(allocator != NULL);
-
+bool fabrica_renderer_init() {
     init_gl();
 
-    if (!fabrica_shaders_init(allocator)) {
+    if (!fabrica_shaders_init()) {
         return false;
     }
 

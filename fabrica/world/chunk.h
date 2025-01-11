@@ -3,7 +3,6 @@
 
 #include "fabrica/debug.h"
 #include "fabrica/math/vec3f.h"
-#include "fabrica/memory/malloc.h"
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/world/block.h"
 

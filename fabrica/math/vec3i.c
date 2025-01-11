@@ -1,4 +1,3 @@
-#include "fabrica/math/quaternionf.h"
 #include <fabrica/math/vec3i.h>
 
 #include <math.h>

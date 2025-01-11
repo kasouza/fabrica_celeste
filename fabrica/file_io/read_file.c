@@ -1,14 +1,12 @@
-#include "fabrica/file_io/read_file.h"
-#include "fabrica/debug.h"
-#include "fabrica/error.h"
-#include "fabrica/memory/allocator.h"
-
 #include <alloca.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <stdio.h>
 
-char *fabrica_read_file_string(const char *filename,
-                               const fabrica_Allocator *allocator) {
+#include "fabrica/debug.h"
+#include "fabrica/error.h"
+
+char *fabrica_read_file_string(const char *filename) {
     assert(filename != NULL);
 
     FILE *file = fopen(filename, "r");
@@ -28,7 +26,7 @@ char *fabrica_read_file_string(const char *filename,
         return NULL;
     }
 
-    char *content = allocator->malloc(length + 1);
+    char *content = malloc(length + 1);
     if (!content) {
         fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
     }
@@ -44,7 +42,7 @@ char *fabrica_read_file_string(const char *filename,
         fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
 
         fclose(file);
-        allocator->free(content);
+        free(content);
         return NULL;
     }
 

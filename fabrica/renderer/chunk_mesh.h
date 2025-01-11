@@ -2,7 +2,6 @@
 #define KASOUZA_FABRICA_CELESTE_FABRICA_RENDERER_CHUNK_MESH_H
 
 #include "fabrica/renderer/texture_atlas.h"
-#include <fabrica/memory/malloc.h>
 #include <fabrica/renderer/gl.h>
 
 typedef struct fabrick_Chunk fabrica_Chunk;

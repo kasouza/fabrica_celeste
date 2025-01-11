@@ -7,6 +7,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int calculate_next_square(int number) {
@@ -21,7 +22,7 @@ int calculate_next_square(int number) {
 fabrica_ErrorCode
 fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
                            int channels, const fabrica_Image *images,
-                           int images_len, const fabrica_Allocator *allocator) {
+                           int images_len) {
     assert(atlas != NULL);
     assert(image_size > 0);
 
@@ -59,7 +60,7 @@ fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
     int atlas_size_indices = atlas_size_pixels / image_size;
 
     fabrica_AtlasIndices *indices =
-        allocator->malloc(sizeof(fabrica_AtlasIndices) * images_len);
+        malloc(sizeof(fabrica_AtlasIndices) * images_len);
 
     if (indices == NULL) {
         fabrica_error_push(fabrica_ErrorCode_MEMORY_ALLOCATION);
@@ -67,7 +68,7 @@ fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
     }
 
     unsigned char *atlas_data =
-        allocator->malloc(sizeof(unsigned char) * atlas_size_pixels *
+        malloc(sizeof(unsigned char) * atlas_size_pixels *
                           atlas_size_pixels * channels);
     if (atlas_data == NULL) {
         fabrica_error_push(fabrica_ErrorCode_MEMORY_ALLOCATION);
@@ -153,7 +154,6 @@ fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
     atlas->image_size_pixels = image_size;
     atlas->indices = indices;
     atlas->indices_len = images_len;
-    atlas->allocator = allocator;
 
     fabrica_image_destroy(&atlas_image);
 

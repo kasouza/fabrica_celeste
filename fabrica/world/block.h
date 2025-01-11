@@ -20,7 +20,7 @@ typedef struct {
     fabrica_BlockType type;
 } fabrica_Block;
 
-void fabrica_blocks_init(const fabrica_Allocator *allocator, fabrica_TextureAtlas *atlas);
+void fabrica_blocks_init(fabrica_TextureAtlas *atlas);
 
 const fabrica_BlockTypeInfo *
 fabrica_block_get_type_info(fabrica_BlockType type);

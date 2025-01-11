@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 
-bool fabrica_renderer_init(const fabrica_Allocator *allocator);
+bool fabrica_renderer_init();
 void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera, const fabrica_TextureAtlas *atlas);
 
 GLFWwindow *fabrica_renderer_get_window();
