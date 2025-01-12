@@ -1,10 +1,13 @@
 #include "fabrica/error.h"
 #include "fabrica/math/vec3f.h"
+#include "fabrica/math/vec3i.h"
 #include "fabrica/renderer/camera.h"
+#include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/renderer/shaders.h"
 #include "fabrica/renderer/texture_atlas.h"
 #include "fabrica/world/block.h"
+#include "fabrica/world/raycast.h"
 #include "fabrica/world/world.h"
 
 #include <GLFW/glfw3.h>
@@ -12,7 +15,6 @@
 #include <stb/stb_image.h>
 
 #include <assert.h>
-#include <stdlib.h>
 
 static int s_is_running = 1;
 
@@ -72,10 +74,25 @@ void handle_cursor_pos_event(GLFWwindow *window, double x, double y) {
     fabrica_camera_recalculate_vectors(&s_camera);
 }
 
+bool s_left_mouse_pressed = false;
+bool s_right_mouse_pressed = false;
+
+void handle_mouse_button_event(GLFWwindow *window, int button, int action,
+                               int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        s_left_mouse_pressed = action == GLFW_PRESS;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        s_right_mouse_pressed = action == GLFW_PRESS;
+    }
+}
+
 void init_events(GLFWwindow *window) {
     glfwSetKeyCallback(window, handle_key_event);
     glfwSetWindowCloseCallback(window, handle_window_close_event);
     glfwSetCursorPosCallback(window, handle_cursor_pos_event);
+    glfwSetMouseButtonCallback(window, handle_mouse_button_event);
 }
 
 int main() {
@@ -104,6 +121,63 @@ int main() {
         fabrica_shaders_get(fabrica_ShaderProgramType_TEXTURED);
 
     while (s_is_running) {
+        fabrica_RaycastHit hit = {0};
+        fabrica_Vec3F dir = {0};
+
+        fabrica_vec3f_normalize(&s_camera.front, &dir);
+
+        // TODO: Check if the max ray length is correct
+        fabrica_raycast(&world, &s_camera.pos, &dir, &hit, 20);
+
+        if (s_left_mouse_pressed && hit.hit) {
+            fabrica_Block *block =
+                fabrica_world_get_block(&world, &hit.block_pos);
+
+            if (block != NULL) {
+                const fabrica_BlockTypeInfo *info =
+                    fabrica_block_get_type_info(block->type);
+
+                if (info != NULL) {
+                    block->type = fabrica_BlockType_AIR;
+                    fabrica_world_mark_chunk_dirty_by_block_pos(&world,
+                                                                &hit.block_pos);
+                }
+            }
+        }
+
+        if (s_right_mouse_pressed && hit.hit) {
+            fabrica_Vec3I new_block_pos = hit.block_pos;
+            switch (hit.face) {
+            case fabrica_Face_BOTTOM:
+                new_block_pos.y--;
+                break;
+            case fabrica_Face_TOP:
+                new_block_pos.y++;
+                break;
+            case fabrica_Face_LEFT:
+                new_block_pos.x--;
+                break;
+            case fabrica_Face_RIGHT:
+                new_block_pos.x++;
+                break;
+            case fabrica_Face_FRONT:
+                new_block_pos.z--;
+                break;
+            case fabrica_Face_BACK:
+                new_block_pos.z++;
+                break;
+            }
+
+            fabrica_Block *block =
+                fabrica_world_get_block(&world, &new_block_pos);
+
+            if (block != NULL && block->type == fabrica_BlockType_AIR) {
+                block->type = fabrica_BlockType_DIRT;
+                fabrica_world_mark_chunk_dirty_by_block_pos(&world,
+                                                            &new_block_pos);
+            }
+        }
+
         fabrica_render(&world, &s_camera, &atlas);
     }
 

@@ -10,16 +10,19 @@ static fabrica_BlockTypeInfo
         {
             .type = fabrica_BlockType_AIR,
             .visible = 0,
+            .tangible = false,
             .texture = NULL,
         },
         {
             .type = fabrica_BlockType_STONE,
             .visible = 1,
+            .tangible = true,
             .texture = "assets/stone.png",
         },
         {
             .type = fabrica_BlockType_DIRT,
             .visible = 1,
+            .tangible = true,
             .texture = "assets/dirt.png",
         }};
 
@@ -43,8 +46,8 @@ void fabrica_blocks_init(fabrica_TextureAtlas *out_atlas) {
         fabrica_image_load(&images[i], visible_blocks[i]->texture);
     }
 
-    fabrica_ErrorCode error = fabrica_texture_atlas_init(out_atlas, 16, 4, images,
-                                                         images_len);
+    fabrica_ErrorCode error =
+        fabrica_texture_atlas_init(out_atlas, 16, 4, images, images_len);
 
     if (error != fabrica_ErrorCode_OK) {
         fabrica_error_print_and_clear();

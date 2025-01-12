@@ -22,6 +22,7 @@ typedef struct {
 } fabrica_ChunkMesh;
 
 void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh);
+void fabrica_chunk_mesh_destroy(fabrica_ChunkMesh *chunk_mesh);
 void fabrica_chunk_mesh_build(fabrica_Chunk *chunk, const fabrica_TextureAtlas *atlas);
 
 #endif

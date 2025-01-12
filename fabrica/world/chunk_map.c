@@ -1,5 +1,7 @@
 #include "fabrica/world/chunk_map.h"
+#include "fabrica/math/vec3i.h"
 #include "fabrica/renderer/chunk_mesh.h"
+#include "fabrica/world/chunk.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,7 +38,6 @@ void fabrica_chunk_map_destroy(fabrica_ChunkMap *chunk_map) {
         while (node != NULL) {
             fabrica_ChunkNode *old_node = node;
             node = node->next;
-
             free(old_node);
         }
 
@@ -46,14 +47,13 @@ void fabrica_chunk_map_destroy(fabrica_ChunkMap *chunk_map) {
     free(chunk_map->buckets);
 }
 
-fabrica_Chunk *fabrica_chunk_map_get(fabrica_ChunkMap *chunk_map, int x, int y,
-                                     int z) {
-    int idx = calculate_index(x, y, z, chunk_map->buckets_cap);
+fabrica_Chunk *fabrica_chunk_map_get(fabrica_ChunkMap *chunk_map, const fabrica_Vec3I *chunk_pos) {
+    int idx = calculate_index(chunk_pos->x, chunk_pos->y, chunk_pos->z, chunk_map->buckets_cap);
 
     fabrica_ChunkNode *node = chunk_map->buckets[idx];
 
     while (node != NULL) {
-        if (node->x == x && node->y == y && node->z == z) {
+        if (node->x == chunk_pos->x && node->y == chunk_pos->y && node->z == chunk_pos->z) {
             return node->chunk;
         }
 
@@ -61,6 +61,12 @@ fabrica_Chunk *fabrica_chunk_map_get(fabrica_ChunkMap *chunk_map, int x, int y,
     }
 
     return NULL;
+}
+
+fabrica_Chunk *fabrica_chunk_map_get_from_block_pos(fabrica_ChunkMap *chunk_map, const fabrica_Vec3I *block_pos) {
+    fabrica_Vec3I chunk_pos;
+    fabrica_block_pos_to_chunk_pos(block_pos, &chunk_pos);
+    return fabrica_chunk_map_get(chunk_map, &chunk_pos);
 }
 
 void fabrica_chunk_map_set(fabrica_ChunkMap *chunk_map, int x, int y, int z,
@@ -147,20 +153,20 @@ void fabrica_chunk_map_remove(fabrica_ChunkMap *chunk_map, int x, int y,
 }
 
 void fabrica_chunk_map_get_all(const fabrica_ChunkMap *chunk_map,
-                               fabrica_Chunk **chunks, int *len) {
+                               fabrica_Chunk ***chunks, int *len) {
     assert(chunk_map != NULL);
     assert(chunks != NULL);
     assert(len != NULL);
 
     *len = chunk_map->buckets_len;
-    *chunks = malloc(sizeof(fabrica_Chunk) * *len);
+    *chunks = malloc(sizeof(fabrica_Chunk) * (chunk_map->buckets_len));
 
     int idx = 0;
     for (int i = 0; i < chunk_map->buckets_cap; ++i) {
         fabrica_ChunkNode *node = chunk_map->buckets[i];
 
         while (node != NULL) {
-            (*chunks)[idx] = *node->chunk;
+            (*chunks)[idx] = node->chunk;
             node = node->next;
             idx += 1;
         }

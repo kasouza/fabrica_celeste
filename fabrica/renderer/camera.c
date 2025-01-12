@@ -35,7 +35,7 @@ void fabrica_camera_init(fabrica_Camera *camera, fabrica_Vec3F pos,
         .y = 0.0f,
         .z = camera->front.z,
     };
-    fabrica_vec3f_normalize(&horizontal_target);
+    fabrica_vec3f_normalize_inplace(&horizontal_target);
 
     float horizontal_angle = asinf(fabsf(horizontal_target.z));
     if (horizontal_target.z >= 0.0f) {
@@ -75,14 +75,14 @@ void fabrica_camera_recalculate_vectors(fabrica_Camera *camera) {
     fabrica_Vec3F front = {1.0f, 0.0f, 0.0f};
 
     fabrica_vec3f_rotate(&front, camera->yaw, &world_up);
-    fabrica_vec3f_normalize(&front);
+    fabrica_vec3f_normalize_inplace(&front);
 
     fabrica_Vec3F right;
     fabrica_vec3f_cross_product(&world_up, &front, &right);
-    fabrica_vec3f_normalize(&right);
+    fabrica_vec3f_normalize_inplace(&right);
 
     fabrica_vec3f_rotate(&front, camera->pitch, &right);
-    fabrica_vec3f_normalize(&front);
+    fabrica_vec3f_normalize_inplace(&front);
 
     fabrica_Vec3F up;
     fabrica_vec3f_cross_product(&front, &right, &up);
@@ -129,7 +129,7 @@ void fabrica_camera_move(fabrica_Camera *camera, fabrica_CameraMoveDir dir,
         break;
     }
 
-    fabrica_vec3f_normalize(&dir_vec);
+    fabrica_vec3f_normalize_inplace(&dir_vec);
     fabrica_vec3f_scale(&dir_vec, velocity, &dir_vec);
     fabrica_vec3f_add(&camera->pos, &dir_vec, &camera->pos);
 }

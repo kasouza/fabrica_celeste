@@ -30,6 +30,7 @@ add_executable(
   fabrica/world/chunk.c
   fabrica/world/chunk_map.c
   fabrica/world/world.c
+  fabrica/world/raycast.c
   stb/stb_image.c)
 
 target_include_directories(fabrica PRIVATE ${PROJECT_SOURCE_DIR})

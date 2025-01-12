@@ -9,7 +9,7 @@ static fabrica_Error *s_errors;
 static int s_errors_len;
 static int s_errors_cap;
 
-static const fabrica_Error **s_error_stack;
+static fabrica_Error **s_error_stack;
 static int s_error_stack_len;
 static int s_error_stack_cap;
 
@@ -52,56 +52,56 @@ void fabrica_error_push_message(fabrica_ErrorCode code, const char *message) {
     fabrica_error_push_errno(code, 0, message);
 }
 
-void fabrica_error_push_errno(fabrica_ErrorCode code, int errno,
+void fabrica_error_push_errno(fabrica_ErrorCode code, int _errno,
                               const char *message) {
-    assert(s_errors != NULL && "Errro module is not initialized");
+    /*assert(s_errors != NULL && "Errro module is not initialized");*/
 
-    // Grow arrays
-    if (s_errors_len >= s_errors_cap) {
-        int new_cap = s_errors_cap * 2;
-        s_errors = realloc(s_errors, new_cap * sizeof(fabrica_Error));
-        if (!s_errors) {
-            fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
-        }
+    /*// Grow arrays*/
+    /*if (s_errors_len >= s_errors_cap) {*/
+        /*int new_cap = s_errors_cap * 2;*/
+        /*s_errors = realloc(s_errors, new_cap * sizeof(fabrica_Error));*/
+        /*if (!s_errors) {*/
+            /*fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);*/
+        /*}*/
 
-        s_errors_cap = new_cap;
-    }
+        /*s_errors_cap = new_cap;*/
+    /*}*/
 
-    if (s_error_stack_len >= s_error_stack_cap) {
-        int new_cap = s_error_stack_cap * 2;
-        s_error_stack =
-            realloc(s_error_stack, new_cap * sizeof(fabrica_Error *));
-        if (!s_error_stack) {
-            fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
-        }
+    /*if (s_error_stack_len >= s_error_stack_cap) {*/
+        /*int new_cap = s_error_stack_cap * 2;*/
+        /*s_error_stack =*/
+            /*realloc(s_error_stack, new_cap * sizeof(fabrica_Error *));*/
+        /*if (!s_error_stack) {*/
+            /*fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);*/
+        /*}*/
 
-        s_error_stack_cap = new_cap;
-    }
+        /*s_error_stack_cap = new_cap;*/
+    /*}*/
 
-    // Push error to s_errors
-    int idx = s_errors_len;
-    s_errors_len++;
+    /*// Push error to s_errors*/
+    /*int idx = s_errors_len;*/
+    /*s_errors_len++;*/
 
-    s_errors[idx].code = code;
-    s_errors[idx]._errno = errno;
-    s_errors[idx].message = NULL;
+    /*s_errors[idx].code = code;*/
+    /*s_errors[idx]._errno = _errno;*/
+    /*s_errors[idx].message = NULL;*/
 
-    if (message) {
-        int size = strlen(message) + 1;
+    /*if (message) {*/
+        /*int size = strlen(message) + 1;*/
 
-        s_errors[idx].message = malloc(size * sizeof(char));
-        if (!s_errors[idx].message) {
-            fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
-        }
+        /*s_errors[idx].message = malloc(size * sizeof(char));*/
+        /*if (!s_errors[idx].message) {*/
+            /*fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);*/
+        /*}*/
 
-        memcpy(s_errors[idx].message, message, size);
-    }
+        /*memcpy(s_errors[idx].message, message, size);*/
+    /*}*/
 
-    // Push error to s_error_stack
-    int stack_idx = s_error_stack_len;
-    s_error_stack_len++;
+    /*// Push error to s_error_stack*/
+    /*int stack_idx = s_error_stack_len;*/
+    /*s_error_stack_len++;*/
 
-    s_error_stack[stack_idx] = &s_errors[idx];
+    /*s_error_stack[stack_idx] = &s_errors[idx];*/
 }
 
 const fabrica_Error *fabrica_error_pop() {

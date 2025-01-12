@@ -72,14 +72,19 @@ void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera,
     const fabrica_ShaderProgram *chunk_shader_program =
         fabrica_shaders_get(fabrica_ShaderProgramType_CHUNK);
 
-    fabrica_Chunk *all_chunks;
+    fabrica_Chunk **all_chunks;
     int all_chunks_len = 0;
 
     fabrica_chunk_map_get_all(&world->chunks, &all_chunks, &all_chunks_len);
 
-
     for (int i = 0; i < all_chunks_len; ++i) {
-        const fabrica_ChunkMesh *mesh = &all_chunks[i].mesh;
+        // TODO: Move the mesh building to separate threads
+        if (all_chunks[i]->is_dirty) {
+            fabrica_chunk_mesh_build(all_chunks[i], atlas);
+            all_chunks[i]->is_dirty = false;
+        }
+
+        const fabrica_ChunkMesh *mesh = &all_chunks[i]->mesh;
         assert(mesh != NULL);
 
         fabrica_mat4f_mult(view_matrix, mesh->transformation_matrix,
@@ -106,6 +111,8 @@ void fabrica_render(const fabrica_World *world, const fabrica_Camera *camera,
 
         glDrawArrays(GL_TRIANGLES, 0, mesh->vertices_len);
     }
+
+    free(all_chunks);
 
     glfwSwapBuffers(s_window);
     glfwPollEvents();

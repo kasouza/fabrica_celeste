@@ -3,13 +3,22 @@
 
 #include <math.h>
 
-void fabrica_vec3f_normalize(fabrica_Vec3F *vec) {
+void fabrica_vec3f_normalize_inplace(fabrica_Vec3F *vec) {
     float magnitude =
         sqrtf(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
 
     vec->x /= magnitude;
     vec->y /= magnitude;
     vec->z /= magnitude;
+}
+
+void fabrica_vec3f_normalize(const fabrica_Vec3F *vec, fabrica_Vec3F *out) {
+    float magnitude =
+        sqrtf(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
+
+    out->x = vec->x / magnitude;
+    out->y = vec->y / magnitude;
+    out->z = vec->z / magnitude;
 }
 
 void fabrica_vec3f_add(const fabrica_Vec3F *a, const fabrica_Vec3F *b,

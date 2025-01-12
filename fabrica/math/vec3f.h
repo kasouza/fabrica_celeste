@@ -7,7 +7,8 @@ typedef struct {
     float z;
 } fabrica_Vec3F;
 
-void fabrica_vec3f_normalize(fabrica_Vec3F *vec);
+void fabrica_vec3f_normalize(const fabrica_Vec3F *vec, fabrica_Vec3F *out);
+void fabrica_vec3f_normalize_inplace(fabrica_Vec3F *vec);
 void fabrica_vec3f_add(const fabrica_Vec3F *a, const fabrica_Vec3F *b,
                         fabrica_Vec3F *out);
 void fabrica_vec3f_scale(const fabrica_Vec3F *a, float scalar,

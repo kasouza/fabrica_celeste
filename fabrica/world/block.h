@@ -2,6 +2,7 @@
 #define KASOUZA_FABRICA_CELESTE_FABRICA_WORLD_BLOCK_H
 
 #include "fabrica/renderer/texture_atlas.h"
+#include <stdbool.h>
 typedef enum {
     fabrica_BlockType_AIR = 0,
     fabrica_BlockType_STONE,
@@ -12,6 +13,7 @@ typedef enum {
 typedef struct {
     fabrica_BlockType type;
     int visible;
+    bool tangible;
     const char *texture;
     fabrica_AtlasIndices indices;
 } fabrica_BlockTypeInfo;

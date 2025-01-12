@@ -35,6 +35,18 @@ void fabrica_chunk_mesh_init(fabrica_ChunkMesh *chunk_mesh) {
     fabrica_mat4f_identity(chunk_mesh->transformation_matrix);
 }
 
+void fabrica_chunk_mesh_destroy(fabrica_ChunkMesh *chunk_mesh) {
+    assert(chunk_mesh != NULL);
+
+    if (chunk_mesh->vertices != NULL) {
+        free(chunk_mesh->vertices);
+        chunk_mesh->vertices = NULL;
+    }
+
+    chunk_mesh->vertices_cap = 0;
+    chunk_mesh->vertices_len = 0;
+}
+
 int isInvisible(const fabrica_Chunk *chunk, int x, int y, int z) {
     if (x < 0 || x >= CHUNK_SIZE) {
         return 1;
@@ -60,9 +72,11 @@ void fabrica_chunk_mesh_build(fabrica_Chunk *chunk,
                               chunk->mesh.transformation_matrix);
 
     if (chunk->mesh.vertices == NULL) {
-        chunk->mesh.vertices = malloc(
-            sizeof(fabrica_ChunkMeshVertex) * VERTICES_INITIAL_CAPACITY);
+        chunk->mesh.vertices =
+            malloc(sizeof(fabrica_ChunkMeshVertex) * VERTICES_INITIAL_CAPACITY);
         chunk->mesh.vertices_cap = VERTICES_INITIAL_CAPACITY;
+        chunk->mesh.vertices_len = 0;
+    } else {
         chunk->mesh.vertices_len = 0;
     }
 
@@ -103,15 +117,13 @@ void fabrica_chunk_mesh_push_block(fabrica_ChunkMesh *mesh, int x, int y, int z,
 
     int vertices_count = neighbor_count * VERTICES_PER_FACE;
     int required_cap = mesh->vertices_len + vertices_count;
-    if (required_cap >= mesh->vertices_cap) {
-        int new_cap = mesh->vertices_cap * VERTICES_GROW_FACTOR;
 
-        if (new_cap < required_cap) {
-            new_cap = required_cap * VERTICES_GROW_FACTOR;
-        }
+    if (required_cap > mesh->vertices_cap) {
+        int new_cap = required_cap * VERTICES_GROW_FACTOR;
 
-        mesh->vertices = realloc(
-            mesh->vertices, new_cap * sizeof(fabrica_ChunkMeshVertex));
+        mesh->vertices =
+            realloc(mesh->vertices, sizeof(fabrica_ChunkMeshVertex) * new_cap);
+
         if (mesh->vertices == NULL) {
             fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
         }
