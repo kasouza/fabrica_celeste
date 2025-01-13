@@ -55,9 +55,14 @@ void handle_key_event(GLFWwindow *window, int key, int scancode, int action,
         case GLFW_KEY_LEFT_SHIFT:
             dir = fabrica_CameraMoveDir_DOWN;
             break;
+        default:
+            dir = fabrica_CameraMoveDir_UNKNOWN;
+            break;
         }
 
-        fabrica_camera_move(&s_camera, dir, 1);
+        if (dir != fabrica_CameraMoveDir_UNKNOWN) {
+            fabrica_camera_move(&s_camera, dir, 1);
+        }
     }
 }
 
@@ -185,6 +190,7 @@ int main() {
     glfwTerminate();
 
     fabrica_world_destroy(&world);
+    fabrica_texture_atlas_destroy(&atlas);
 
     return 0;
 }

@@ -52,13 +52,22 @@ static GLuint s_create_shader_program(const char *vertex_shader_path,
     GLchar *fragment_shader_src =
         fabrica_read_file_string(fragment_shader_path);
     if (!fragment_shader_src) {
+        free(vertex_shader_src);
         return 0;
     }
 
-    // Compile vertex shader
+    // Create shaders and attach sources
     GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, (const GLchar *const *)&vertex_shader_src,
                    0);
+
+    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1,
+                   (const GLchar *const *)&fragment_shader_src, 0);
+    free(vertex_shader_src);
+    free(fragment_shader_src);
+
+    // Compile vertex shader
     glCompileShader(vertex_shader);
 
     GLint vertex_shader_compiled;
@@ -79,9 +88,6 @@ static GLuint s_create_shader_program(const char *vertex_shader_path,
     }
 
     // Compile fragment shader
-    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1,
-                   (const GLchar *const *)&fragment_shader_src, 0);
     glCompileShader(fragment_shader);
 
     GLint fragment_shader_compiled;

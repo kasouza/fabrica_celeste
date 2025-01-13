@@ -11,7 +11,7 @@ void fabrica_world_init(fabrica_World *world,
                         const fabrica_TextureAtlas *atlas) {
     assert(world != NULL);
 
-    fabrica_chunk_map_init(&world->chunks);
+    fabrica_chunk_map_init(&world->chunks, WORLD_SIZE);
 
     for (int i = 0; i < (WORLD_SIZE * WORLD_SIZE * WORLD_SIZE); i++) {
         fabrica_Chunk *chunk = malloc(sizeof(fabrica_Chunk));

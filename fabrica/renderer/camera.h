@@ -16,7 +16,8 @@ typedef struct {
 } fabrica_Camera;
 
 typedef enum {
-    fabrica_CameraMoveDir_FORWARD = 0,
+    fabrica_CameraMoveDir_UNKNOWN = -1,
+    fabrica_CameraMoveDir_FORWARD,
     fabrica_CameraMoveDir_BACKWARD,
     fabrica_CameraMoveDir_LEFT,
     fabrica_CameraMoveDir_RIGHT,

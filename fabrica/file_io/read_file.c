@@ -16,22 +16,28 @@ char *fabrica_read_file_string(const char *filename) {
     }
 
     if (fseek(file, 0, SEEK_END) == -1) {
+        fclose(file);
         fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
         return NULL;
     }
 
     long length = ftell(file);
     if (length == -1) {
+        fclose(file);
         fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
         return NULL;
     }
 
     char *content = malloc(length + 1);
     if (!content) {
+        fclose(file);
         fabrica_exit(fabrica_ErrorCode_MEMORY_ALLOCATION);
     }
 
     if (fseek(file, 0, SEEK_SET) == -1) {
+        free(content);
+        fclose(file);
+
         fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
         return NULL;
     }
@@ -39,12 +45,14 @@ char *fabrica_read_file_string(const char *filename) {
     fread(content, 1, length, file);
 
     if (ferror(file) != 0) {
+        free(content);
+        fclose(file);
         fabrica_error_push_errno(fabrica_ErrorCode_READ_FILE, errno, NULL);
 
-        fclose(file);
-        free(content);
         return NULL;
     }
+
+    fclose(file);
 
     content[length] = '\0';
 

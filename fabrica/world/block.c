@@ -49,6 +49,10 @@ void fabrica_blocks_init(fabrica_TextureAtlas *out_atlas) {
     fabrica_ErrorCode error =
         fabrica_texture_atlas_init(out_atlas, 16, 4, images, images_len);
 
+    for (int i = 0; i < images_len; i++) {
+        fabrica_image_destroy(&images[i]);
+    }
+
     if (error != fabrica_ErrorCode_OK) {
         fabrica_error_print_and_clear();
         return;

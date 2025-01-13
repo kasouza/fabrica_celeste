@@ -23,7 +23,7 @@ typedef struct {
     int virtual_world_size;
 } fabrica_ChunkMap;
 
-void fabrica_chunk_map_init(fabrica_ChunkMap *chunk_map);
+void fabrica_chunk_map_init(fabrica_ChunkMap *chunk_map, int virtual_world_size);
 void fabrica_chunk_map_destroy(fabrica_ChunkMap *chunk_map);
 
 fabrica_Chunk *fabrica_chunk_map_get(fabrica_ChunkMap *chunk_map, const fabrica_Vec3I *chunk_pos);

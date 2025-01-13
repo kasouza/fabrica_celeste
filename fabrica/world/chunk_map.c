@@ -13,10 +13,10 @@ int calculate_index(int x, int y, int z, int cap) {
     return abs(cantor(cantor(x, y), z)) % cap;
 }
 
-void fabrica_chunk_map_init(fabrica_ChunkMap *chunk_map) {
+void fabrica_chunk_map_init(fabrica_ChunkMap *chunk_map, int virtual_world_size) {
     assert(chunk_map != NULL);
 
-    chunk_map->virtual_world_size = 3;
+    chunk_map->virtual_world_size = virtual_world_size;
     chunk_map->buckets_len = 0;
     chunk_map->buckets_cap = chunk_map->virtual_world_size *
                              chunk_map->virtual_world_size *
@@ -93,6 +93,8 @@ void fabrica_chunk_map_set(fabrica_ChunkMap *chunk_map, int x, int y, int z,
                 fabrica_ChunkNode *next = node->next;
                 fabrica_chunk_map_set(chunk_map, node->x, node->y, node->z,
                                       node->chunk);
+
+                free(node);
                 node = next;
             }
         }

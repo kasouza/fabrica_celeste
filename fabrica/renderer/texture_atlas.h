@@ -63,6 +63,5 @@ void fabrica_texture_atlas_destroy(fabrica_TextureAtlas *atlas);
 fabrica_ErrorCode fabrica_texture_atlas_load_image(fabrica_TextureAtlas *atlas,
                                                    const char *path);
 void fabrica_texture_atlas_build(fabrica_TextureAtlas *atlas);
-void fabrica_texture_atlas_destroy(fabrica_TextureAtlas *atlas);
 
 #endif

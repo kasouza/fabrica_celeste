@@ -89,6 +89,7 @@ fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
 
         indices[i].first = current_index;
         indices[i].last = (current_index + (res_x * res_y)) - 1;
+
         // Iterate through each chunk/index of the image
         for (int image_index_x = 0; image_index_x < res_y; image_index_x++) {
             for (int image_index_y = 0; image_index_y < res_x;
@@ -98,9 +99,6 @@ fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
 
                 int atlas_index_x = index % atlas_size_indices;
                 int atlas_index_y = index / atlas_size_indices;
-
-                // Flip the atlas y
-                /*atlas_index_y = atlas_size_indices - atlas_index_y - 1;*/
 
                 int atlas_first_pixel_x = atlas_index_x * image_size;
                 int atlas_first_pixel_y = atlas_index_y * image_size;
@@ -158,4 +156,13 @@ fabrica_texture_atlas_init(fabrica_TextureAtlas *atlas, int image_size,
     fabrica_image_destroy(&atlas_image);
 
     return fabrica_ErrorCode_OK;
+}
+
+void fabrica_texture_atlas_destroy(fabrica_TextureAtlas *atlas) {
+    assert(atlas != NULL);
+
+    if (atlas->indices != NULL) {
+        free(atlas->indices);
+        atlas->indices = NULL;
+    }
 }
