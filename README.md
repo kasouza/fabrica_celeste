@@ -6,6 +6,7 @@ Very very very early in dev right now (can't even call it a game honestly)
 ## TODO
 - [ ] Better distribution for the chunk map hash function
 - [ ] Greedy meshing
+- [ ] Event queue thread-safe
 
 ## How to build and run
 *You will need vcpkg installed on your machine, see [how to install here](https://learn.microsoft.com/pt-br/vcpkg/get_started/get-started?pivots=shell-cmd)*

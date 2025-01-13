@@ -135,4 +135,7 @@ void fabrica_error_print_and_clear() {
     }
 }
 
-void fabrica_exit(fabrica_ErrorCode error) { exit(error); }
+void fabrica_exit(fabrica_ErrorCode error) { 
+    fprintf(stderr, "Fatal error: %d\n", error);
+    exit(error); 
+}

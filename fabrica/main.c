@@ -1,8 +1,11 @@
 #include "fabrica/error.h"
+#include "fabrica/event/event.h"
+#include "fabrica/event/glfw.h"
+#include "fabrica/input/key.h"
+#include "fabrica/input/keyboard.h"
 #include "fabrica/math/vec3f.h"
 #include "fabrica/math/vec3i.h"
 #include "fabrica/renderer/camera.h"
-#include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/renderer/shaders.h"
 #include "fabrica/renderer/texture_atlas.h"
@@ -16,56 +19,17 @@
 #include <stb/stb_image.h>
 
 #include <assert.h>
+#include <stdbool.h>
 
 static int s_is_running = 1;
 
 static double s_cursor_pos_x;
 static double s_cursor_pos_y;
 
+bool s_left_mouse_pressed = false;
+bool s_right_mouse_pressed = false;
+
 static fabrica_Camera s_camera;
-
-void handle_key_event(GLFWwindow *window, int key, int scancode, int action,
-                      int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        s_is_running = 0;
-    }
-
-    if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-        fabrica_CameraMoveDir dir;
-        switch (key) {
-        case GLFW_KEY_W:
-            dir = fabrica_CameraMoveDir_FORWARD;
-            break;
-
-        case GLFW_KEY_S:
-            dir = fabrica_CameraMoveDir_BACKWARD;
-            break;
-
-        case GLFW_KEY_D:
-            dir = fabrica_CameraMoveDir_RIGHT;
-            break;
-
-        case GLFW_KEY_A:
-            dir = fabrica_CameraMoveDir_LEFT;
-            break;
-
-        case GLFW_KEY_SPACE:
-            dir = fabrica_CameraMoveDir_UP;
-            break;
-
-        case GLFW_KEY_LEFT_SHIFT:
-            dir = fabrica_CameraMoveDir_DOWN;
-            break;
-        default:
-            dir = fabrica_CameraMoveDir_UNKNOWN;
-            break;
-        }
-
-        if (dir != fabrica_CameraMoveDir_UNKNOWN) {
-            fabrica_camera_move(&s_camera, dir, 1);
-        }
-    }
-}
 
 void handle_window_close_event(GLFWwindow *window) { s_is_running = 0; }
 
@@ -80,11 +44,16 @@ void handle_cursor_pos_event(GLFWwindow *window, double x, double y) {
     fabrica_camera_recalculate_vectors(&s_camera);
 }
 
-bool s_left_mouse_pressed = false;
-bool s_right_mouse_pressed = false;
-
 void handle_mouse_button_event(GLFWwindow *window, int button, int action,
                                int mods) {
+    fabrica_Event event;
+    event.mouse_button.type = fabrica_EventType_MOUSE_BUTTON;
+    event.mouse_button.button = button;
+    event.mouse_button.action = action;
+    event.mouse_button.mods = mods;
+
+    fabrica_push_event(&event);
+
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         s_left_mouse_pressed = action == GLFW_PRESS;
     }
@@ -109,6 +78,8 @@ int main() {
         return 1;
     }
 
+    fabrica_event_init();
+
     fabrica_TextureAtlas atlas;
     fabrica_blocks_init(&atlas);
 
@@ -127,13 +98,59 @@ int main() {
         fabrica_shaders_get(fabrica_ShaderProgramType_TEXTURED);
 
     while (s_is_running) {
+        // Event handling
+        fabrica_Event event = {0};
+
+        while (fabrica_poll_event(&event)) {
+            switch (event.type) {
+            case fabrica_EventType_KEY:
+                fabrica_keyboard_handle_key_event(&event);
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        // Update
+        if (fabrica_keyboard_is_key_pressed(fabrica_Key_ESCAPE)) {
+            s_is_running = false;
+        }
+
+        fabrica_CameraMoveDir movedir;
+
+        if (fabrica_keyboard_is_key_pressed(fabrica_Key_W)) {
+            fabrica_camera_move(&s_camera, fabrica_CameraMoveDir_FORWARD, 1);
+        }
+
+        if (fabrica_keyboard_is_key_pressed(fabrica_Key_S)) {
+            fabrica_camera_move(&s_camera, fabrica_CameraMoveDir_BACKWARD, 1);
+        }
+
+        if (fabrica_keyboard_is_key_pressed(fabrica_Key_D)) {
+            fabrica_camera_move(&s_camera, fabrica_CameraMoveDir_RIGHT, 1);
+        }
+
+        if (fabrica_keyboard_is_key_pressed(fabrica_Key_A)) {
+            fabrica_camera_move(&s_camera, fabrica_CameraMoveDir_LEFT, 1);
+        }
+
+        if (fabrica_keyboard_is_key_pressed(fabrica_Key_SPACE)) {
+            fabrica_camera_move(&s_camera, fabrica_CameraMoveDir_UP, 1);
+        }
+
+        if (fabrica_keyboard_is_key_pressed(fabrica_Key_LEFT_SHIFT)) {
+            fabrica_camera_move(&s_camera, fabrica_CameraMoveDir_DOWN, 1);
+        }
+
         fabrica_RaycastHit hit = {0};
         fabrica_Vec3F dir = {0};
 
         fabrica_vec3f_normalize(&s_camera.front, &dir);
 
         // TODO: Check if the max ray length is correct
-        fabrica_raycast(&world, &s_camera.pos, &dir, &hit, FABRICA_PLAYER_INTERACTION_MAX_LENGTH);
+        fabrica_raycast(&world, &s_camera.pos, &dir, &hit,
+                        FABRICA_PLAYER_INTERACTION_MAX_LENGTH);
 
         if (s_left_mouse_pressed && hit.hit) {
             fabrica_Block *block =
@@ -184,14 +201,17 @@ int main() {
             }
         }
 
+        // Render
         fabrica_render(&world, &s_camera, &atlas);
     }
 
-    fabrica_error_terminate();
+    fabrica_event_terminate();
     glfwTerminate();
 
     fabrica_world_destroy(&world);
     fabrica_texture_atlas_destroy(&atlas);
+
+    fabrica_error_terminate();
 
     return 0;
 }
