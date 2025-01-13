@@ -6,6 +6,7 @@
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/renderer/shaders.h"
 #include "fabrica/renderer/texture_atlas.h"
+#include "fabrica/utils/constants.h"
 #include "fabrica/world/block.h"
 #include "fabrica/world/raycast.h"
 #include "fabrica/world/world.h"
@@ -132,7 +133,7 @@ int main() {
         fabrica_vec3f_normalize(&s_camera.front, &dir);
 
         // TODO: Check if the max ray length is correct
-        fabrica_raycast(&world, &s_camera.pos, &dir, &hit, 20);
+        fabrica_raycast(&world, &s_camera.pos, &dir, &hit, FABRICA_PLAYER_INTERACTION_MAX_LENGTH);
 
         if (s_left_mouse_pressed && hit.hit) {
             fabrica_Block *block =

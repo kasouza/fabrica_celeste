@@ -26,6 +26,9 @@ int fabrica_shaders_init() {
         s_create_shader_program("shaders/textured.vert",
                                 "shaders/textured.frag");
 
+    s_fabrica_shaders[fabrica_ShaderProgramType_HIGHLIGHT].program =
+        s_create_shader_program("shaders/line.vert", "shaders/line.frag");
+
     for (int i = 0; i < fabrica_ShaderProgramType_COUNT; ++i) {
         if (!s_fabrica_shaders[i].program) {
             return 0;
