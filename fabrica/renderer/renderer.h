@@ -8,5 +8,10 @@
 
 bool fabrica_renderer_init();
 void fabrica_render(fabrica_World *world, const fabrica_Camera *camera, const fabrica_TextureAtlas *atlas);
+void fabrica_renderer_terminate();
+
+GLFWwindow *fabrica_renderer_get_window();
+void fabrica_renderer_get_window_dimensions(int *width, int *height);
+void fabrica_renderer_set_cursor_pos(double x, double y);
 
 #endif

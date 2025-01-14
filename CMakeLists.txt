@@ -14,7 +14,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(
   fabrica
   fabrica/error.c
-  fabrica/glfw.c
   fabrica/main.c
   fabrica/event/event.c
   fabrica/file_io/read_file.c
