@@ -1,8 +1,10 @@
 #include "fabrica/error.h"
 #include "fabrica/event/event.h"
-#include "fabrica/event/glfw.h"
+#include "fabrica/glfw.h"
 #include "fabrica/input/key.h"
 #include "fabrica/input/keyboard.h"
+#include "fabrica/input/mouse.h"
+#include "fabrica/input/mouse_button.h"
 #include "fabrica/math/vec3f.h"
 #include "fabrica/math/vec3i.h"
 #include "fabrica/renderer/camera.h"
@@ -14,7 +16,6 @@
 #include "fabrica/world/raycast.h"
 #include "fabrica/world/world.h"
 
-#include <GLFW/glfw3.h>
 #include <alloca.h>
 #include <stb/stb_image.h>
 
@@ -31,64 +32,27 @@ bool s_right_mouse_pressed = false;
 
 static fabrica_Camera s_camera;
 
-void handle_window_close_event(GLFWwindow *window) { s_is_running = 0; }
-
-void handle_cursor_pos_event(GLFWwindow *window, double x, double y) {
-    float x_offset = (x - s_cursor_pos_x) * 0.01;
-    float y_offset = (y - s_cursor_pos_y) * 0.01;
-
-    s_cursor_pos_x = x;
-    s_cursor_pos_y = y;
-
-    fabrica_camera_rotate(&s_camera, x_offset, y_offset);
-    fabrica_camera_recalculate_vectors(&s_camera);
-}
-
-void handle_mouse_button_event(GLFWwindow *window, int button, int action,
-                               int mods) {
-    fabrica_Event event;
-    event.mouse_button.type = fabrica_EventType_MOUSE_BUTTON;
-    event.mouse_button.button = button;
-    event.mouse_button.action = action;
-    event.mouse_button.mods = mods;
-
-    fabrica_push_event(&event);
-
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        s_left_mouse_pressed = action == GLFW_PRESS;
-    }
-
-    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        s_right_mouse_pressed = action == GLFW_PRESS;
-    }
-}
-
-void init_events(GLFWwindow *window) {
-    glfwSetKeyCallback(window, handle_key_event);
-    glfwSetWindowCloseCallback(window, handle_window_close_event);
-    glfwSetCursorPosCallback(window, handle_cursor_pos_event);
-    glfwSetMouseButtonCallback(window, handle_mouse_button_event);
-}
-
 int main() {
     fabrica_error_init();
+    fabrica_event_init();
+
+    if (!fabrica_glfw_init()) {
+        fabrica_error_print_and_clear();
+        return 1;
+    }
 
     if (!fabrica_renderer_init()) {
         fabrica_error_print_and_clear();
         return 1;
     }
 
-    fabrica_event_init();
-
     fabrica_TextureAtlas atlas;
     fabrica_blocks_init(&atlas);
-
-    init_events(fabrica_renderer_get_window());
 
     fabrica_camera_init(&s_camera, (fabrica_Vec3F){0.0f, 0.0f, -1.0f},
                         (fabrica_Vec3F){0.0f, 0.0f, 1.0f});
 
-    glfwGetCursorPos(fabrica_renderer_get_window(), &s_cursor_pos_x,
+    glfwGetCursorPos(fabrica_glfw_get_window(), &s_cursor_pos_x,
                      &s_cursor_pos_y);
 
     fabrica_World world;
@@ -105,6 +69,27 @@ int main() {
             switch (event.type) {
             case fabrica_EventType_KEY:
                 fabrica_keyboard_handle_key_event(&event);
+                break;
+
+            case fabrica_EventType_WINDOW_CLOSE:
+                s_is_running = false;
+                break;
+
+            case fabrica_EventType_CURSOR_POS: {
+                // TODO: Wrap cursor handling
+                float x_offset = (event.cursor_pos.x - s_cursor_pos_x) * 0.01;
+                float y_offset = (event.cursor_pos.y - s_cursor_pos_y) * 0.01;
+
+                s_cursor_pos_x = event.cursor_pos.x;
+                s_cursor_pos_y = event.cursor_pos.y;
+
+                fabrica_camera_rotate(&s_camera, x_offset, y_offset);
+                fabrica_camera_recalculate_vectors(&s_camera);
+                break;
+            }
+
+            case fabrica_EventType_MOUSE_BUTTON:
+                fabrica_mouse_handle_mouse_button_event(&event);
                 break;
 
             default:
@@ -152,7 +137,8 @@ int main() {
         fabrica_raycast(&world, &s_camera.pos, &dir, &hit,
                         FABRICA_PLAYER_INTERACTION_MAX_LENGTH);
 
-        if (s_left_mouse_pressed && hit.hit) {
+        if (fabrica_mouse_is_button_pressed(fabrica_MouseButton_LEFT) &&
+            hit.hit) {
             fabrica_Block *block =
                 fabrica_world_get_block(&world, &hit.block_pos);
 
@@ -168,7 +154,8 @@ int main() {
             }
         }
 
-        if (s_right_mouse_pressed && hit.hit) {
+        if (fabrica_mouse_is_button_pressed(fabrica_MouseButton_RIGHT) &&
+            hit.hit) {
             fabrica_Vec3I new_block_pos = hit.block_pos;
             switch (hit.face) {
             case fabrica_Face_BOTTOM:
@@ -205,12 +192,10 @@ int main() {
         fabrica_render(&world, &s_camera, &atlas);
     }
 
-    fabrica_event_terminate();
-    glfwTerminate();
-
     fabrica_world_destroy(&world);
     fabrica_texture_atlas_destroy(&atlas);
-
+    fabrica_glfw_terminate();
+    fabrica_event_terminate();
     fabrica_error_terminate();
 
     return 0;

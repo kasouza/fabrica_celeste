@@ -11,7 +11,8 @@ typedef enum {
     fabrica_ErrorCode_RENDERER_TEXTURE_LOAD_FORMAT = 6,
     fabrica_ErrorCode_IMAGE_LOAD = 7,
     fabrica_ErrorCode_TEXTURE_ATLAS_IMAGE_SIZE = 8,
-    fabrica_ErrorCode_TEXTURE_ATLAS_CHANNELS = 9
+    fabrica_ErrorCode_TEXTURE_ATLAS_CHANNELS = 9,
+    fabrica_ErrorCode_GLFW_INITIALIZATION = 10
 } fabrica_ErrorCode;
 
 typedef struct {

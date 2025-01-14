@@ -14,14 +14,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(
   fabrica
   fabrica/error.c
+  fabrica/glfw.c
   fabrica/main.c
   fabrica/event/event.c
-  fabrica/event/glfw.c
   fabrica/file_io/read_file.c
   fabrica/file_io/image.c
   fabrica/input/keyboard.c
   fabrica/input/action.c
   fabrica/input/key.c
+  fabrica/input/mouse_button.c
+  fabrica/input/mouse.c
   fabrica/math/mat4f.c
   fabrica/math/quaternionf.c
   fabrica/math/vec3f.c

@@ -1,4 +1,5 @@
 #include "fabrica/renderer/renderer.h"
+#include "fabrica/glfw.h"
 #include "fabrica/math/mat4f.h"
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/gl.h"
@@ -8,7 +9,6 @@
 #include "fabrica/world/chunk.h"
 #include "fabrica/world/raycast.h"
 
-#include <GLFW/glfw3.h>
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -19,10 +19,6 @@
 #define NEAR 1.0f
 #define FAR 100.0f
 
-static GLFWwindow *s_window = NULL;
-static int s_window_width = 800;
-static int s_window_height = 600;
-
 static GLuint s_chunk_vao = 0;
 static GLuint s_chunk_vbo = 0;
 
@@ -31,13 +27,9 @@ static GLuint s_highlight_vbo = 0;
 static GLuint s_highlight_ebo = 0;
 
 void fabrica_render_chunk(const fabrica_Chunk *chunk);
-void init_gl();
-void handle_window_resize_event(GLFWwindow *window, int width, int height);
 void default_perspective_matrix(float *mat);
 
 bool fabrica_renderer_init() {
-    init_gl();
-
     if (!fabrica_shaders_init()) {
         return false;
     }
@@ -198,63 +190,14 @@ void fabrica_render(fabrica_World *world, const fabrica_Camera *camera,
         glLineWidth(1);
     }
 
-    glfwSwapBuffers(s_window);
+    glfwSwapBuffers(fabrica_glfw_get_window());
     glfwPollEvents();
 }
 
-GLFWwindow *fabrica_renderer_get_window() { return s_window; }
-
-void init_gl() {
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        return;
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-    s_window =
-        glfwCreateWindow(s_window_width, s_window_height, "Mine", NULL, NULL);
-    if (!s_window) {
-        fprintf(stderr, "Failed to create window\n");
-        glfwTerminate();
-        return;
-    }
-
-    glfwMakeContextCurrent(s_window);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        fprintf(stderr, "Failed to initialize GLAD\n");
-        glfwTerminate();
-        return;
-    }
-
-    glViewport(0, 0, s_window_width, s_window_height);
-
-    glEnable(GL_DEPTH_TEST);
-
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CW);
-    glCullFace(GL_BACK);
-
-    glfwSetWindowSizeCallback(s_window, handle_window_resize_event);
-
-    glfwSetInputMode(s_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    if (glfwRawMouseMotionSupported()) {
-        glfwSetInputMode(s_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
-}
-
-void handle_window_resize_event(GLFWwindow *window, int width, int height) {
-    s_window_width = width;
-    s_window_height = height;
-
-    glViewport(0, 0, width, height);
-}
-
 void default_perspective_matrix(float *mat) {
-    fabrica_mat4f_persperctive(TO_RADIAN(70.0f),
-                               (float)s_window_width / s_window_height, 0.5f,
+    int width, height;
+    fabrica_glfw_get_window_dimensions(&width, &height);
+
+    fabrica_mat4f_persperctive(TO_RADIAN(70.0f), (float)width / height, 0.5f,
                                100.0f, mat);
 }
