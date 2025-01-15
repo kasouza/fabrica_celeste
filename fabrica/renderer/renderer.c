@@ -1,5 +1,6 @@
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/event/event.h"
+#include "fabrica/game.h"
 #include "fabrica/math/mat4f.h"
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/gl.h"
@@ -181,11 +182,8 @@ bool fabrica_renderer_init() {
     return true;
 }
 
-void fabrica_render(fabrica_World *world, const fabrica_Camera *camera,
-                    const fabrica_TextureAtlas *atlas) {
-    assert(world != NULL);
-    assert(camera != NULL);
-    assert(atlas != NULL);
+void fabrica_renderer_render(fabrica_Game *game) {
+    assert(game);
 
     float view_matrix[16];
     float projection_matrix[16];
@@ -194,7 +192,7 @@ void fabrica_render(fabrica_World *world, const fabrica_Camera *camera,
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    fabrica_camera_view_matrix(camera, view_matrix);
+    fabrica_camera_view_matrix(&game->camera, view_matrix);
     default_perspective_matrix(projection_matrix);
 
     // Render chunks
@@ -208,7 +206,8 @@ void fabrica_render(fabrica_World *world, const fabrica_Camera *camera,
     fabrica_Chunk **all_chunks;
     int all_chunks_len = 0;
 
-    fabrica_chunk_map_get_all(&world->chunks, &all_chunks, &all_chunks_len);
+    fabrica_chunk_map_get_all(&game->world.chunks, &all_chunks,
+                              &all_chunks_len);
 
     glUseProgram(chunk_shader_program->program);
     glBindVertexArray(s_chunk_vao);
@@ -216,7 +215,7 @@ void fabrica_render(fabrica_World *world, const fabrica_Camera *camera,
     for (int i = 0; i < all_chunks_len; ++i) {
         // TODO: Move the mesh building to separate threads
         if (all_chunks[i]->is_dirty) {
-            fabrica_chunk_mesh_build(all_chunks[i], atlas);
+            fabrica_chunk_mesh_build(all_chunks[i], &game->atlas);
             all_chunks[i]->is_dirty = false;
         }
 
@@ -237,7 +236,7 @@ void fabrica_render(fabrica_World *world, const fabrica_Camera *camera,
         glUniformMatrix4fv(u_matrix, 1, GL_TRUE, final_matrix);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, atlas->texture.id);
+        glBindTexture(GL_TEXTURE_2D, game->atlas.texture.id);
 
         GLuint u_texture =
             glGetUniformLocation(chunk_shader_program->program, "u_texture");
@@ -253,7 +252,7 @@ void fabrica_render(fabrica_World *world, const fabrica_Camera *camera,
     glDepthFunc(GL_LEQUAL);
 
     fabrica_RaycastHit hit;
-    fabrica_raycast(world, &camera->pos, &camera->front, &hit,
+    fabrica_raycast(&game->world, &game->camera.pos, &game->camera.front, &hit,
                     FABRICA_PLAYER_INTERACTION_MAX_LENGTH);
 
     if (hit.hit) {

@@ -18,6 +18,7 @@ add_executable(
   fabrica/event/event.c
   fabrica/file_io/read_file.c
   fabrica/file_io/image.c
+  fabrica/game.c
   fabrica/input/keyboard.c
   fabrica/input/action.c
   fabrica/input/key.c

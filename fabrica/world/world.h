@@ -10,7 +10,7 @@ typedef struct {
     fabrica_ChunkMap chunks;
 } fabrica_World;
 
-void fabrica_world_init(fabrica_World *world, const fabrica_TextureAtlas *atlas);
+void fabrica_world_init(fabrica_World *world);
 void fabrica_world_destroy(fabrica_World *world);
 
 fabrica_Block *fabrica_world_get_block(fabrica_World *world, const fabrica_Vec3I *block_pos);

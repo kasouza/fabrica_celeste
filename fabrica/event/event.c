@@ -1,6 +1,8 @@
 #include "fabrica/event/event.h"
 #include "fabrica/debug.h"
 #include "fabrica/error.h"
+#include "fabrica/input/keyboard.h"
+#include "fabrica/input/mouse.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -25,7 +27,7 @@ void fabrica_event_init() {
 void fabrica_event_terminate() {
     assert(s_event_init && "The event subsystem must be initialized");
 
-    free(s_event_queue); 
+    free(s_event_queue);
     s_event_init = false;
 }
 
@@ -67,4 +69,32 @@ bool fabrica_poll_event(fabrica_Event *event) {
     s_event_queue_len--;
 
     return true;
+}
+
+void fabrica_event_handle_events(fabrica_Game *game) {
+    fabrica_Event event = {0};
+
+    while (fabrica_poll_event(&event)) {
+        switch (event.type) {
+        case fabrica_EventType_KEY:
+            fabrica_keyboard_handle_key_event(&event);
+            break;
+
+        case fabrica_EventType_WINDOW_CLOSE:
+            game->is_running = false;
+            break;
+
+        case fabrica_EventType_CURSOR_POS: {
+            fabrica_mouse_handle_cursor_pos_event(&event);
+            break;
+        }
+
+        case fabrica_EventType_MOUSE_BUTTON:
+            fabrica_mouse_handle_mouse_button_event(&event);
+            break;
+
+        default:
+            break;
+        }
+    }
 }

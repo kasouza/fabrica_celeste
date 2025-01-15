@@ -1,6 +1,7 @@
 #ifndef KASOUZA_FABRICA_FABRICA_EVENT_EVENT_H
 #define KASOUZA_FABRICA_FABRICA_EVENT_EVENT_H
 
+#include "fabrica/game.h"
 #include "fabrica/input/action.h"
 #include "fabrica/input/key.h"
 #include "fabrica/input/mouse_button.h"
@@ -58,5 +59,7 @@ void fabrica_event_terminate();
 
 void fabrica_push_event(fabrica_Event *event);
 bool fabrica_poll_event(fabrica_Event *event);
+
+void fabrica_event_handle_events(fabrica_Game *game);
 
 #endif

@@ -7,8 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void fabrica_world_init(fabrica_World *world,
-                        const fabrica_TextureAtlas *atlas) {
+void fabrica_world_init(fabrica_World *world) {
     assert(world != NULL);
 
     fabrica_chunk_map_init(&world->chunks, WORLD_SIZE);
@@ -50,7 +49,6 @@ void fabrica_world_init(fabrica_World *world,
             }
         }
 
-        fabrica_chunk_mesh_build(chunk, atlas);
         fabrica_chunk_map_set(&world->chunks, x, y, z, chunk);
     }
 }
