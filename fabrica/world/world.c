@@ -1,4 +1,5 @@
 #include "fabrica/world/world.h"
+#include "fabrica/debug.h"
 #include "fabrica/math/vec3i.h"
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/world/block.h"
@@ -10,15 +11,16 @@
 void fabrica_world_init(fabrica_World *world) {
     assert(world != NULL);
 
-    fabrica_chunk_map_init(&world->chunks, WORLD_SIZE);
+    fabrica_chunk_map_init(&world->chunks);
 
+    // TODO: Move to the generate chunks function
     for (int i = 0; i < (WORLD_SIZE * WORLD_SIZE * WORLD_SIZE); i++) {
         fabrica_Chunk *chunk = malloc(sizeof(fabrica_Chunk));
         fabrica_chunk_init(chunk);
 
-        int x = i % WORLD_SIZE;
-        int y = i / (WORLD_SIZE * WORLD_SIZE);
-        int z = (i / WORLD_SIZE) % WORLD_SIZE;
+        int x = i % WORLD_SIZE - 1;
+        int y = i / (WORLD_SIZE * WORLD_SIZE) - 1;
+        int z = (i / WORLD_SIZE) % WORLD_SIZE - 1;
 
         int x_pos = x * CHUNK_SIZE;
         int y_pos = y * CHUNK_SIZE;
@@ -49,7 +51,7 @@ void fabrica_world_init(fabrica_World *world) {
             }
         }
 
-        fabrica_chunk_map_set(&world->chunks, x, y, z, chunk);
+        fabrica_chunk_map_set(&world->chunks, chunk);
     }
 }
 
@@ -72,7 +74,7 @@ void fabrica_world_destroy(fabrica_World *world) {
 fabrica_Block *fabrica_world_get_block(fabrica_World *world,
                                        const fabrica_Vec3I *block_pos) {
     fabrica_Chunk *chunk =
-        fabrica_chunk_map_get_from_block_pos(&world->chunks, block_pos);
+        fabrica_chunk_map_get_by_block_pos(&world->chunks, block_pos);
     if (chunk == NULL) {
         return NULL;
     }
@@ -92,7 +94,7 @@ fabrica_world_get_chunk_by_block_pos(fabrica_World *world,
     assert(world != NULL);
     assert(block_pos != NULL);
 
-    return fabrica_chunk_map_get_from_block_pos(&world->chunks, block_pos);
+    return fabrica_chunk_map_get_by_block_pos(&world->chunks, block_pos);
 }
 
 void fabrica_world_mark_chunk_dirty_by_block_pos(
@@ -106,4 +108,56 @@ void fabrica_world_mark_chunk_dirty_by_block_pos(
     if (chunk != NULL) {
         chunk->is_dirty = true;
     }
+}
+
+void fabrica_world_unload_far_chunks(fabrica_World *world,
+                                     const fabrica_Vec3F *center,
+                                     int simulation_distance) {
+    assert(world != NULL);
+
+    fabrica_Vec3I center_block_pos;
+    fabrica_vec3i_from_vec3f(center, &center_block_pos);
+
+    fabrica_Vec3I center_chunk_pos;
+    fabrica_block_pos_to_chunk_pos(&center_block_pos, &center_chunk_pos);
+
+    int simulation_distance_in_blocks = (simulation_distance * CHUNK_SIZE);
+
+    int min_x = center_chunk_pos.x - simulation_distance_in_blocks;
+    int min_y = center_chunk_pos.y - simulation_distance_in_blocks;
+    int min_z = center_chunk_pos.z - simulation_distance_in_blocks;
+
+    int max_x = center_chunk_pos.x + simulation_distance_in_blocks;
+    int max_y = center_chunk_pos.y + simulation_distance_in_blocks;
+    int max_z = center_chunk_pos.z + simulation_distance_in_blocks;
+
+    /*printf("min (%d %d %d) - max (%d %d %d)\n", min_x, min_y, min_z, max_x,
+     * max_y, max_z);*/
+
+    fabrica_Chunk **chunks;
+    int chunks_len;
+
+    fabrica_chunk_map_get_all(&world->chunks, &chunks, &chunks_len);
+
+    int toremovecount = 0;
+    for (int i = 0; i < chunks_len; ++i) {
+        fabrica_Chunk *chunk = chunks[i];
+        assert(chunk != NULL);
+        /*printf("%d %d %d\n", chunk->pos.x, chunk->pos.y, chunk->pos.z);*/
+
+        bool x_out_of_bounds = chunk->pos.x < min_x || chunk->pos.x > max_x;
+        bool y_out_of_bounds = chunk->pos.y < min_y || chunk->pos.y > max_y;
+        bool z_out_of_bounds = chunk->pos.z < min_z || chunk->pos.z > max_z;
+
+        if (x_out_of_bounds || y_out_of_bounds || z_out_of_bounds) {
+            toremovecount++;
+            fabrica_chunk_map_remove(&world->chunks, &chunk->pos);
+            free(chunk);
+        }
+    }
+
+    /*printf("toremove: %d\n", toremovecount);*/
+    /*printf("---\n");*/
+
+    free(chunks);
 }

@@ -27,6 +27,7 @@ add_executable(
   fabrica/math/mat4f.c
   fabrica/math/quaternionf.c
   fabrica/math/vec3f.c
+  fabrica/math/vec3i.c
   fabrica/renderer/camera.c
   fabrica/renderer/chunk_mesh.c
   fabrica/renderer/renderer.c

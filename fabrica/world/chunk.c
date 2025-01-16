@@ -27,14 +27,15 @@ void fabrica_chunk_destroy(fabrica_Chunk *chunk) {
 }
 
 void fabrica_block_pos_to_chunk_pos(const fabrica_Vec3I *block_pos,
-                                    fabrica_Vec3I *out_chunk_pos) {
+                                         fabrica_Vec3I *out_chunk_pos) {
     assert(out_chunk_pos != NULL);
-    out_chunk_pos->x = floorf((double)block_pos->x / CHUNK_SIZE);
-    out_chunk_pos->y = floorf((double)block_pos->y / CHUNK_SIZE);
-    out_chunk_pos->z = floorf((double)block_pos->z / CHUNK_SIZE);
+    out_chunk_pos->x = floorf((double)block_pos->x / CHUNK_SIZE) * CHUNK_SIZE;
+    out_chunk_pos->y = floorf((double)block_pos->y / CHUNK_SIZE) * CHUNK_SIZE;
+    out_chunk_pos->z = floorf((double)block_pos->z / CHUNK_SIZE) * CHUNK_SIZE;
 }
 
-fabrica_Block *fabrica_chunk_get_block(fabrica_Chunk *chunk, const fabrica_Vec3I *pos_in_chunk) {
+fabrica_Block *fabrica_chunk_get_block(fabrica_Chunk *chunk,
+                                       const fabrica_Vec3I *pos_in_chunk) {
     assert(pos_in_chunk != NULL);
 
     if (pos_in_chunk->x < 0 || pos_in_chunk->x >= CHUNK_SIZE) {
@@ -49,6 +50,7 @@ fabrica_Block *fabrica_chunk_get_block(fabrica_Chunk *chunk, const fabrica_Vec3I
         return NULL;
     }
 
-    int idx = fabrica_chunk_block_index(pos_in_chunk->x, pos_in_chunk->y, pos_in_chunk->z);
+    int idx = fabrica_chunk_block_index(pos_in_chunk->x, pos_in_chunk->y,
+                                        pos_in_chunk->z);
     return &chunk->blocks[idx];
 }

@@ -25,3 +25,9 @@ void fabrica_vec3i_scale(const fabrica_Vec3I *a, int32_t scalar,
     out->y = a->y * scalar;
     out->z = a->z * scalar;
 }
+
+void fabrica_vec3i_from_vec3f(const fabrica_Vec3F *v, fabrica_Vec3I *out) {
+    out->x = (int32_t)v->x;
+    out->y = (int32_t)v->y;
+    out->z = (int32_t)v->z;
+}

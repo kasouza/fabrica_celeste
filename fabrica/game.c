@@ -4,6 +4,8 @@
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/utils/constants.h"
 #include "fabrica/world/raycast.h"
+#include "fabrica/world/world.h"
+#include <stdio.h>
 
 void tick(fabrica_Game *game);
 void render(fabrica_Game *game);
@@ -22,16 +24,13 @@ void fabrica_game_init(fabrica_Game *game) {
 
     fabrica_blocks_init(&game->atlas);
 
-    fabrica_camera_init(&game->camera, (fabrica_Vec3F){0.0f, 0.0f, -1.0f},
+    fabrica_camera_init(&game->camera, (fabrica_Vec3F){0.0f, 0.0f, 0.0f},
                         (fabrica_Vec3F){0.0f, 0.0f, 1.0f});
 
     fabrica_world_init(&game->world);
 
     game->dt = 1 / 60.0;
     game->dt_start_time = 0;
-
-    /*fabrica_ShaderProgram *shader_program =*/
-    /*fabrica_shaders_get(fabrica_ShaderProgramType_TEXTURED);*/
 }
 
 void fabrica_game_terminate(fabrica_Game *game) {
@@ -179,4 +178,6 @@ void tick(fabrica_Game *game) {
     if (game->block_breaking_cooldown >= 0) {
         game->block_breaking_cooldown -= game->dt;
     }
+
+    fabrica_world_unload_far_chunks(&game->world, &game->camera.pos, 1);
 }
