@@ -2,10 +2,12 @@
 #include "fabrica/event/event.h"
 #include "fabrica/input/keyboard.h"
 #include "fabrica/input/mouse.h"
+#include "fabrica/noise/noise.h"
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/utils/constants.h"
 #include "fabrica/world/raycast.h"
 #include "fabrica/world/world.h"
+#include <stdlib.h>
 #include <stdio.h>
 
 void tick(fabrica_Game *game);
@@ -166,6 +168,6 @@ void tick(fabrica_Game *game) {
         game->block_breaking_cooldown -= game->dt;
     }
 
-    fabrica_world_unload_far_chunks(&game->world, &game->camera.pos, 5);
-    fabrica_world_load_new_chunks(&game->world, &game->camera.pos, 5);
+    fabrica_world_unload_far_chunks(&game->world, &game->camera.pos, 3);
+    fabrica_world_load_new_chunks(&game->world, &game->camera.pos, 3);
 }

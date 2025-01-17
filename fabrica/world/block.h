@@ -7,6 +7,7 @@ typedef enum {
     fabrica_BlockType_AIR = 0,
     fabrica_BlockType_STONE,
     fabrica_BlockType_DIRT,
+    fabrica_BlockType_GRASS,
     fabrica_BlockType_COUNT
 } fabrica_BlockType;
 

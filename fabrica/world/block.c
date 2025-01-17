@@ -24,6 +24,12 @@ static fabrica_BlockTypeInfo
             .visible = 1,
             .tangible = true,
             .texture = "assets/dirt.png",
+        },
+        {
+            .type = fabrica_BlockType_GRASS,
+            .visible = 1,
+            .tangible = true,
+            .texture = "assets/grass.png",
         }};
 
 void fabrica_blocks_init(fabrica_TextureAtlas *out_atlas) {

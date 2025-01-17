@@ -29,6 +29,7 @@ add_executable(
   fabrica/math/quaternionf.c
   fabrica/math/vec3f.c
   fabrica/math/vec3i.c
+  fabrica/noise/noise.c
   fabrica/renderer/camera.c
   fabrica/renderer/chunk_mesh.c
   fabrica/renderer/renderer.c
@@ -40,7 +41,11 @@ add_executable(
   fabrica/world/chunk_map.c
   fabrica/world/world.c
   fabrica/world/raycast.c
-  stb/stb_image.c)
+
+  # Libs
+  stb/stb_image.c
+  open_simplex_noise/open_simplex_noise.c
+)
 
 target_include_directories(fabrica PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(fabrica PRIVATE c_std_11)

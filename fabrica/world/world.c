@@ -1,10 +1,13 @@
 #include "fabrica/world/world.h"
 #include "fabrica/debug.h"
 #include "fabrica/math/vec3i.h"
+#include "fabrica/noise/noise.h"
 #include "fabrica/renderer/chunk_mesh.h"
+#include "fabrica/utils/constants.h"
 #include "fabrica/world/block.h"
 #include "fabrica/world/chunk.h"
 #include "fabrica/world/chunk_map.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -115,6 +118,13 @@ void fabrica_world_unload_far_chunks(fabrica_World *world,
     free(chunks);
 }
 
+double noise(int x, int z, double frequency, double amplitude) {
+
+    return (fabrica_noise_2d((double)x * frequency, (double)z * frequency) +
+            1.0) /
+           2.0 * amplitude;
+}
+
 void fabrica_world_load_new_chunks(fabrica_World *world,
                                    const fabrica_Vec3F *center,
                                    int simulation_distance) {
@@ -158,26 +168,43 @@ void fabrica_world_load_new_chunks(fabrica_World *world,
                 chunk->pos = (fabrica_Vec3I){x, y, z};
 
                 for (int block_x = 0; block_x < CHUNK_SIZE; ++block_x) {
-                    for (int block_y = 0; block_y < CHUNK_SIZE; ++block_y) {
-                        for (int block_z = 0; block_z < CHUNK_SIZE; ++block_z) {
+                    for (int block_z = 0; block_z < CHUNK_SIZE; ++block_z) {
+
+                        // TODO: Cache locality etc etc
+                        double world_x = (double)(x + block_x);
+                        double world_z = (double)(z + block_z);
+
+                        double frequency = 0.01;
+
+                        double noise1 = noise(world_x, world_z, 0.01, 32.0);
+                        double noise2 = noise(world_x, world_z, 0.25, 0.5);
+                        double noise3 = noise(world_x, world_z, 0.5, 0.25);
+                        double noise4 = noise(world_x, world_z, 1, 0.125);
+
+                        int noise_y = floor(noise1 + noise2 + noise3 + noise4);
+
+                        for (int block_y = 0; block_y < CHUNK_SIZE; ++block_y) {
+                            int world_y = (y + block_y);
+
                             int idx = fabrica_chunk_block_index(
                                 block_x, block_y, block_z);
                             chunk->blocks[idx].type = fabrica_BlockType_AIR;
 
-                            if ((y + block_y) < 40) {
+                            int diff = noise_y - world_y;
+
+                            if (diff == 0) {
+                                chunk->blocks[idx].type =
+                                    fabrica_BlockType_GRASS;
+                            } else if (diff > 0 && diff < 5) {
+                                chunk->blocks[idx].type =
+                                    fabrica_BlockType_DIRT;
+
+                            } else if (diff > 0) {
                                 chunk->blocks[idx].type =
                                     fabrica_BlockType_STONE;
-                            }
 
-                            if ((y + block_y) >= 40 && (y + block_y) < 50) {
-                                chunk->blocks[idx].type =
-                                    fabrica_BlockType_DIRT;
-                            }
-
-                            if (x == 32 && y == 32 && z == 0 && block_x == 0 &&
-                                block_y == 1 && block_z == 0) {
-                                chunk->blocks[idx].type =
-                                    fabrica_BlockType_DIRT;
+                            } else {
+                                chunk->blocks[idx].type = fabrica_BlockType_AIR;
                             }
                         }
                     }
