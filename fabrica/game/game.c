@@ -1,4 +1,5 @@
-#include "fabrica/game.h"
+#include "fabrica/game/game.h"
+#include "fabrica/event/event.h"
 #include "fabrica/input/keyboard.h"
 #include "fabrica/input/mouse.h"
 #include "fabrica/renderer/renderer.h"
@@ -19,8 +20,8 @@ void fabrica_game_init(fabrica_Game *game) {
     game->previous_cursor_x = width / 2.0;
     game->previous_cursor_y = height / 2.0;
 
-    fabrica_mouse_set_cursor_pos(game->previous_cursor_x,
-                                 game->previous_cursor_y);
+    fabrica_renderer_set_cursor_pos(game->previous_cursor_x,
+                                    game->previous_cursor_y);
 
     fabrica_blocks_init(&game->atlas);
 
@@ -57,20 +58,6 @@ void fabrica_game_run(fabrica_Game *game) {
 }
 
 void tick(fabrica_Game *game) {
-    double cursor_x, cursor_y;
-    fabrica_mouse_get_cursor_pos(&cursor_x, &cursor_y);
-
-    float x_offset = (cursor_x - game->previous_cursor_x) *
-                     FABRICA_MOUSE_SENSIBILITY * game->dt;
-    float y_offset = (cursor_y - game->previous_cursor_y) *
-                     FABRICA_MOUSE_SENSIBILITY * game->dt;
-
-    game->previous_cursor_x = cursor_x;
-    game->previous_cursor_y = cursor_y;
-
-    fabrica_camera_rotate(&game->camera, x_offset, y_offset);
-    fabrica_camera_recalculate_vectors(&game->camera);
-
     if (fabrica_keyboard_is_key_pressed(fabrica_Key_ESCAPE)) {
         game->is_running = false;
     }
@@ -179,5 +166,6 @@ void tick(fabrica_Game *game) {
         game->block_breaking_cooldown -= game->dt;
     }
 
-    fabrica_world_unload_far_chunks(&game->world, &game->camera.pos, 1);
+    fabrica_world_unload_far_chunks(&game->world, &game->camera.pos, 5);
+    fabrica_world_load_new_chunks(&game->world, &game->camera.pos, 5);
 }

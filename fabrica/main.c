@@ -1,6 +1,6 @@
 #include "fabrica/error.h"
 #include "fabrica/event/event.h"
-#include "fabrica/game.h"
+#include "fabrica/game/game.h"
 #include "fabrica/renderer/renderer.h"
 
 #include <stb/stb_image.h>

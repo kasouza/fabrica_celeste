@@ -1,7 +1,7 @@
 #ifndef KASOUZA_FABRICA_CELESTE_FABRICA_RENDERER_RENDERER_H
 #define KASOUZA_FABRICA_CELESTE_FABRICA_RENDERER_RENDERER_H
 
-#include "fabrica/game.h"
+#include "fabrica/game/game.h"
 
 #include <stdbool.h>
 

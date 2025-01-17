@@ -1,6 +1,6 @@
 #include "fabrica/renderer/renderer.h"
 #include "fabrica/event/event.h"
-#include "fabrica/game.h"
+#include "fabrica/game/game.h"
 #include "fabrica/math/mat4f.h"
 #include "fabrica/renderer/chunk_mesh.h"
 #include "fabrica/renderer/gl.h"
@@ -17,8 +17,6 @@
 #include <time.h>
 
 #define TO_RADIAN(x) (float)(((x) * M_PI / 180.0f))
-#define NEAR 1.0f
-#define FAR 100.0f
 
 static GLFWwindow *s_window = NULL;
 static int s_window_width = 800;
@@ -222,6 +220,10 @@ void fabrica_renderer_render(fabrica_Game *game) {
         const fabrica_ChunkMesh *mesh = &all_chunks[i]->mesh;
         assert(mesh != NULL);
 
+        if (mesh->vertices_len <= 0) {
+            continue;
+        }
+
         fabrica_mat4f_mult(view_matrix, mesh->transformation_matrix,
                            temp_matrix);
         fabrica_mat4f_mult(projection_matrix, temp_matrix, final_matrix);
@@ -287,9 +289,9 @@ void fabrica_renderer_render(fabrica_Game *game) {
 }
 
 void default_perspective_matrix(float *mat) {
-    fabrica_mat4f_persperctive(TO_RADIAN(70.0f),
-                               (float)s_window_width / s_window_height, 0.5f,
-                               100.0f, mat);
+    fabrica_mat4f_persperctive(
+        TO_RADIAN(70.0f), (float)s_window_width / s_window_height,
+        FABRICA_RENDERER_NEAR, FABRICA_RENDERER_FAR, mat);
 }
 
 void fabrica_renderer_terminate() {

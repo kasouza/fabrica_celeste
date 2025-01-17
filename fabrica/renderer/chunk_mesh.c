@@ -68,14 +68,8 @@ void fabrica_chunk_mesh_build(fabrica_Chunk *chunk,
                               const fabrica_TextureAtlas *atlas) {
     assert(chunk != NULL);
 
-    float scaling[16];
-    float translation[16];
-
-    fabrica_mat4f_scaling(0.9, 0.9, 0.9, scaling);
     fabrica_mat4f_translation(chunk->pos.x, chunk->pos.y, chunk->pos.z,
-                              translation);
-
-    fabrica_mat4f_mult(translation, scaling, chunk->mesh.transformation_matrix);
+                              chunk->mesh.transformation_matrix);
 
     if (chunk->mesh.vertices == NULL) {
         chunk->mesh.vertices =

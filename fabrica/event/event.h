@@ -1,14 +1,12 @@
 #ifndef KASOUZA_FABRICA_FABRICA_EVENT_EVENT_H
 #define KASOUZA_FABRICA_FABRICA_EVENT_EVENT_H
 
-#include "fabrica/game.h"
+#include "fabrica/game/game.h"
 #include "fabrica/input/action.h"
 #include "fabrica/input/key.h"
 #include "fabrica/input/mouse_button.h"
 
 #include <stdbool.h>
-
-typedef struct GLFWwindow GLFWwindow;
 
 /** Event types */
 typedef enum {

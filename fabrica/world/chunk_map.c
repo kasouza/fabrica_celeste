@@ -73,7 +73,6 @@ void fabrica_chunk_map_set(fabrica_ChunkMap *chunk_map, fabrica_Chunk *chunk) {
     float load_factor = (float)new_len / (float)chunk_map->buckets_cap;
 
     if (load_factor > 0.75f) {
-        fprintf(stderr, "growing\n");
         fabrica_ChunkNode **old_buckets = chunk_map->buckets;
         int old_buckets_cap = chunk_map->buckets_cap;
 
@@ -98,7 +97,6 @@ void fabrica_chunk_map_set(fabrica_ChunkMap *chunk_map, fabrica_Chunk *chunk) {
 
     int idx = calculate_index(chunk->pos.x, chunk->pos.y, chunk->pos.z,
                               chunk_map->buckets_cap);
-    /*printf("%d: %d %d %d\n", idx, chunk->pos.x, chunk->pos.y, chunk->pos.z);*/
 
     fabrica_ChunkNode *new_node = malloc(sizeof(fabrica_ChunkNode));
     new_node->next = NULL;

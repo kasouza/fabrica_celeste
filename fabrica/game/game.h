@@ -1,5 +1,5 @@
-#ifndef KASOUZA_FABRICA_GAME_H
-#define KASOUZA_FABRICA_GAME_H
+#ifndef KASOUZA_FABRICA_GAME_GAME_H
+#define KASOUZA_FABRICA_GAME_GAME_H
 
 #include "fabrica/renderer/camera.h"
 #include "fabrica/renderer/texture_atlas.h"

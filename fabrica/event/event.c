@@ -1,6 +1,8 @@
 #include "fabrica/event/event.h"
 #include "fabrica/debug.h"
 #include "fabrica/error.h"
+#include "fabrica/game/event_handlers.h"
+#include "fabrica/game/game.h"
 #include "fabrica/input/keyboard.h"
 #include "fabrica/input/mouse.h"
 
@@ -81,11 +83,11 @@ void fabrica_event_handle_events(fabrica_Game *game) {
             break;
 
         case fabrica_EventType_WINDOW_CLOSE:
-            game->is_running = false;
+            fabrica_game_handle_window_close_event(&event, game);
             break;
 
         case fabrica_EventType_CURSOR_POS: {
-            fabrica_mouse_handle_cursor_pos_event(&event);
+            fabrica_game_handle_cursor_pos_event(&event, game);
             break;
         }
 

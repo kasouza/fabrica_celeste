@@ -5,8 +5,6 @@
 #include "fabrica/math/vec3i.h"
 #include "fabrica/world/chunk_map.h"
 
-#define WORLD_SIZE 3
-
 typedef struct {
     fabrica_ChunkMap chunks;
 } fabrica_World;
@@ -24,6 +22,10 @@ void fabrica_world_mark_chunk_dirty_by_block_pos(
     fabrica_World *world, const fabrica_Vec3I *block_pos);
 
 void fabrica_world_unload_far_chunks(fabrica_World *world,
+                                     const fabrica_Vec3F *center,
+                                     int simulation_distance);
+
+void fabrica_world_load_new_chunks(fabrica_World *world,
                                      const fabrica_Vec3F *center,
                                      int simulation_distance);
 

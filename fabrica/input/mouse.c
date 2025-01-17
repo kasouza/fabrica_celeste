@@ -1,7 +1,6 @@
 #include "fabrica/input/mouse.h"
 #include "fabrica/debug.h"
 #include "fabrica/input/mouse_button.h"
-#include "fabrica/renderer/renderer.h"
 
 #include <stddef.h>
 
@@ -24,25 +23,4 @@ void fabrica_mouse_handle_mouse_button_event(const fabrica_Event *event) {
 bool fabrica_mouse_is_button_pressed(fabrica_MouseButton key) {
     assert(key >= 0 && key < fabrica_MouseButton_COUNT);
     return s_keys[key];
-}
-
-void fabrica_mouse_handle_cursor_pos_event(const fabrica_Event *event) {
-    s_cursor_x_offset = event->cursor_pos.x - s_cursor_x;
-    s_cursor_y_offset = event->cursor_pos.y - s_cursor_y;
-    s_cursor_x = event->cursor_pos.x;
-    s_cursor_y = event->cursor_pos.y;
-}
-
-void fabrica_mouse_get_cursor_pos(double *x, double *y) {
-    assert(x != NULL);
-    assert(y != NULL);
-
-    *x = s_cursor_x;
-    *y = s_cursor_y;
-}
-
-void fabrica_mouse_set_cursor_pos(double x, double y) {
-    s_cursor_x = x;
-    s_cursor_y = y;
-    fabrica_renderer_set_cursor_pos(x, y);
 }
